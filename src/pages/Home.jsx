@@ -33,7 +33,7 @@ function Home() {
           Special Slip
         </Link>
         <Link
-          to="/"
+          to="/slip-payment"
           className="bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold transition shadow hover:bg-amber-600"
         >
           Slip Payment
@@ -47,7 +47,6 @@ function Home() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-
           {/* Type */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-600">
