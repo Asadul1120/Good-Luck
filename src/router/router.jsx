@@ -10,6 +10,7 @@ import DepositRequest from "../pages/DepositRequest";
 import SpecialSlip from "../pages/SpecialSlip";
 import Profile from './../pages/Profile';
 import ChangePassword from './../pages/ChangePassword';
+import DepositHistory from "../pages/DepositHistory";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
         path: "/",
         index: true,
         element: <Home />,
+      },
+      {
+        path: "/deposithistory",
+        element: <DepositHistory />,
       },
 
       {
