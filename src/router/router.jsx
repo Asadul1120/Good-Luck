@@ -7,6 +7,7 @@ import Login from "../pages/Login";
 import NormalSlip from "../pages/NormalSlip";
 import NightSlip from "../pages/NightSlip";
 import DepositRequest from "../pages/DepositRequest";
+import SpecialSlip from "../pages/SpecialSlip";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: "/night-slip",
         element: <NightSlip />,
+      },
+      {
+        path: "/special-slip",
+        element: <SpecialSlip  />,
       },
       {
         path: "/depositRequest",

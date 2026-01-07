@@ -208,7 +208,16 @@ const NightSlip = () => {
               onChange={handleChange}
               className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             >
-              {["Bangladesh", "India", "Pakistan"].map((item) => (
+              {[
+                "Select your Country",
+                "Bahrain",
+                "Kuwait",
+                "Oman",
+                "Qatar",
+                "Saudi Arabia",
+                "UAE",
+                "Yemen",
+              ].map((item) => (
                 <option key={item} value={item}>
                   {item}
                 </option>
