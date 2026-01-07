@@ -101,6 +101,10 @@ const Header = () => {
             <Link to="/profile" className="hover:text-yellow-300 font-medium">
               Profile
             </Link>
+
+            <p>
+              Balance: <span className="text-yellow-300">00.00</span>
+            </p>
           </nav>
 
           {/* Right Button */}
@@ -123,6 +127,10 @@ const Header = () => {
           }`}
         >
           <div className="flex flex-col space-y-3">
+            <p className="bg-gray-300 p-2 rounded-md text-gray-800 font-medium">
+              Balance: <span className="text-yellow-600 font-bold">00.00</span>
+            </p>
+
             <Link
               to="/"
               onClick={closeMobileMenu}
