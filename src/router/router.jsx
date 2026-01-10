@@ -11,6 +11,7 @@ import SpecialSlip from "../pages/SpecialSlip";
 import Profile from './../pages/Profile';
 import ChangePassword from './../pages/ChangePassword';
 import DepositHistory from "../pages/DepositHistory";
+import SlipPayment from "../pages/SlipPayment";
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "/special-slip",
         element: <SpecialSlip  />,
+      },
+      {
+        path: "/slip-payment",
+        element: <SlipPayment />,
       },
       {
         path: "/change-password",
