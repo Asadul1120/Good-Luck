@@ -14,6 +14,11 @@ import DepositHistory from "../pages/DepositHistory";
 import SlipPayment from "../pages/SlipPayment";
 import Transaction from "../pages/Transaction";
 import MedicalCenter from "../pages/MedicalCenter";
+import UsersRegister from "../pages/AdminPages/UsersRegister";
+import PrivateRoute from "./PrivateRoute";
+import Dashboard from "./../pages/Dashboard";
+import AdminRoute from "./AdminRoute";
+import AdminPanel from "../pages/AdminPages/AdminPanel";
 
 const router = createBrowserRouter([
   {
@@ -27,37 +32,70 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/deposithistory",
-        element: <DepositHistory />,
+        path: "/dashboard",
+        element: (
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        ),
       },
-
       {
-        path: "/login",
-        element: <Login />,
+        path: "/depositHistory",
+        element: (
+          <PrivateRoute>
+            <DepositHistory />
+          </PrivateRoute>
+        ),
       },
+      ,
       {
         path: "/profile",
-        element: <Profile />,
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/normal-slip",
-        element: <NormalSlip />,
+        element: (
+          <PrivateRoute>
+            <NormalSlip />
+          </PrivateRoute>
+        ),
       },
+
       {
         path: "/night-slip",
-        element: <NightSlip />,
+        element: (
+          <PrivateRoute>
+            <NightSlip />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/special-slip",
-        element: <SpecialSlip />,
+        element: (
+          <PrivateRoute>
+            <SpecialSlip />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/transaction",
-        element: <Transaction />,
+        element: (
+          <PrivateRoute>
+            <Transaction />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/medicalCenter",
-        element: <MedicalCenter />,
+        element: (
+          <PrivateRoute>
+            <MedicalCenter />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/slip-payment",
@@ -65,11 +103,41 @@ const router = createBrowserRouter([
       },
       {
         path: "/change-password",
-        element: <ChangePassword />,
+        element: (
+          <PrivateRoute>
+            <ChangePassword />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/depositRequest",
-        element: <DepositRequest />,
+        element: (
+          <PrivateRoute>
+            <DepositRequest />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/addUser",
+        element: (
+          <AdminRoute>
+            <UsersRegister />
+          </AdminRoute>
+        ),
+      },
+      ,
+      {
+        path: "/adminPanel",
+        element: (
+          <AdminRoute>
+            <AdminPanel />
+          </AdminRoute>
+        ),
+      },
+
+      {
+        path: "/login",
+        element: <Login />,
       },
 
       {

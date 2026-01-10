@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const NormalSlip = () => {
   const [formData, setFormData] = useState({
@@ -188,7 +190,16 @@ const NormalSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Dhaka", "Chittagong", "Sylhet"].map((item) => (
+                {[
+                  "Barishal",
+                  "Chitagong",
+                  "Cox's Bazar",
+                  "Cumilla",
+                  "Dhaka",
+                  "Rajshahi",
+                  "Sherpur",
+                  "Sylhet",
+                ].map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -294,7 +305,7 @@ const NormalSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Bangladesh", "India", "Pakistan"].map((item) => (
+                {["Bangladesh"].map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -436,6 +447,13 @@ const NormalSlip = () => {
                   errors.passportIssueDate ? "border-red-500" : ""
                 }`}
               />
+              {/* <DatePicker
+                selected={formData.passportIssueDate}
+                onChange={(date) => setFormData({ ...formData, passportIssueDate: date })}
+                className={`border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full ${
+                  errors.passportIssueDate ? "border-red-500" : ""
+                }`}
+              /> */}
               {errors.passportIssueDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.passportIssueDate}
@@ -455,6 +473,13 @@ const NormalSlip = () => {
                   errors.passportExpiryDate ? "border-red-500" : ""
                 }`}
               />
+              {/* <DatePicker
+                selected={formData.passportExpiryDate}
+                onChange={(date) => setFormData({ ...formData, passportExpiryDate: date })}
+                className={`border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full ${
+                  errors.passportExpiryDate ? "border-red-500" : ""
+                }`}
+              /> */}
               <div className="flex gap-2 mt-2">
                 <button
                   type="button"

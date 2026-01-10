@@ -1,10 +1,18 @@
 import React, { useState, useCallback } from "react";
 import img from "../assets/img.png";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 
 const Login = () => {
+  const { login, loading, user } = useAuth();
+  const navigate = useNavigate();
+
+  
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -16,20 +24,22 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  // Submit Handler
+  // 🔐 Submit Handler (REAL LOGIN)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (!formData.username || !formData.password) return;
 
     setIsSubmitting(true);
 
     try {
-      // 🔐 API CALL PLACEHOLDER
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Login Data:", formData);
-    } catch (error) {
-      console.error("Login failed", error);
+      await login(formData.username, formData.password);
+      navigate("/dashboard"); // ✅ login success redirect
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Invalid username or password"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -38,18 +48,22 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-      
+
         {/* Logo */}
         <div className="flex justify-center mb-8 bg-white rounded-full">
           <img src={img} alt="Logo" className="w-24 h-24" />
         </div>
 
-
         {/* Title */}
-        <div className=" mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl font-semibold text-gray-800">Welcome 👋</h1>
           <p className="text-gray-500 mt-1">Please sign in to your account</p>
         </div>
+
+        {/* Error */}
+        {error && (
+          <p className="mb-4 text-sm text-red-500 text-center">{error}</p>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -91,7 +105,7 @@ const Login = () => {
                 onClick={() => setShowPassword((prev) => !prev)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showPassword ? "👤" : "👁️"}
+                {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
           </div>

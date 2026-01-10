@@ -189,7 +189,16 @@ const SpecialSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Dhaka", "Chittagong", "Sylhet"].map((item) => (
+                {[
+                  "Barishal",
+                  "Chitagong",
+                  "Cox's Bazar",
+                  "Cumilla",
+                  "Dhaka",
+                  "Rajshahi",
+                  "Sherpur",
+                  "Sylhet",
+                ].map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -295,7 +304,7 @@ const SpecialSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Bangladesh", "India", "Pakistan"].map((item) => (
+                {["Bangladesh"].map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -684,25 +693,3 @@ const SpecialSlip = () => {
 };
 
 export default SpecialSlip;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
