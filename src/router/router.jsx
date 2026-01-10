@@ -13,6 +13,7 @@ import ChangePassword from "./../pages/ChangePassword";
 import DepositHistory from "../pages/DepositHistory";
 import SlipPayment from "../pages/SlipPayment";
 import Transaction from "../pages/Transaction";
+import MedicalCenter from "../pages/MedicalCenter";
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: "/transaction",
         element: <Transaction />,
+      },
+      {
+        path: "/medicalCenter",
+        element: <MedicalCenter />,
       },
       {
         path: "/slip-payment",

@@ -1,6 +1,7 @@
 
 import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -9,7 +10,7 @@ function App() {
       <main>
         <Outlet /> {/* এখানে চাইল্ড রাউট রেন্ডার হবে */}
       </main>
-      {/* আপনি চাইলে Footer এখানে যোগ করতে পারেন */}
+      <Footer />
     </div>
   );
 }
