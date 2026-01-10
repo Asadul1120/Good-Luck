@@ -10,46 +10,33 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gradient-to-r from-blue-600 to-indigo-800 text-gray-100 px-6 py-12 mt-10">
-      
+    <footer className="bg-gradient-to-r from-blue-600 to-indigo-800 text-gray-100 px-4 sm:px-6 py-10 mt-10">
       {/* Scrolling Notice */}
       <div className="overflow-hidden border-b border-white/20 pb-3 mb-8">
-        <div className="flex whitespace-nowrap gap-16 animate-marquee hover:[animation-play-state:paused] text-sm md:text-base">
+        <div className="flex whitespace-nowrap gap-12 animate-marquee hover:[animation-play-state:paused] text-xs sm:text-sm md:text-base">
           <span>
             For assistance with payment approvals and slip cancellations, please
             contact us at: 📞 01629412410 🔄
-          </span>
-          <span>
-            সৌদি আরব, কুয়েত, কাতার, ওমান, বাহরাইন সহ বিভিন্ন দেশের ভিসা প্রসেসিং ও
-            টিকেটিং এর নির্ভরযোগ্য প্রতিষ্ঠান।
-          </span>
-          {/* Duplicate for seamless loop */}
-          <span>
-            For assistance with payment approvals and slip cancellations, please
-            contact us at: 📞 01629412410 🔄
-          </span>
-          <span>
-            সৌদি আরব, কুয়েত, কাতার, ওমান, বাহরাইন সহ বিভিন্ন দেশের ভিসা প্রসেসিং ও
-            টিকেটিং এর নির্ভরযোগ্য প্রতিষ্ঠান।
           </span>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-        
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 text-center md:text-left">
         {/* Founder */}
         <div>
-          <h2 className="text-2xl font-semibold text-white">
+          <h2 className="text-xl md:text-2xl font-semibold text-white">
             MOHHAMMAD RABBI
           </h2>
-          <hr className="border-white/30 my-3 w-24" />
+          <hr className="border-white/30 my-3 w-20 mx-auto md:mx-0" />
           <p className="text-sm text-gray-200">Founder & Consultant</p>
         </div>
 
         {/* Contact */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
+          <h3 className="text-base md:text-lg font-semibold mb-3">
+            Contact Information
+          </h3>
           <ul className="space-y-2 text-sm text-gray-200">
             <li>
               📞{" "}
@@ -61,12 +48,12 @@ const Footer = () => {
               ✉️{" "}
               <a
                 href="mailto:msgoodlucktourstravels@gmail.com"
-                className="hover:text-white"
+                className="hover:text-white break-all"
               >
                 msgoodlucktourstravels@gmail.com
               </a>
             </li>
-            <li>
+            <li className="leading-relaxed">
               📍 China Town (5th Floor), Room No. W-5/67, Naya Paltan,
               Dhaka-1000, Bangladesh
             </li>
@@ -75,7 +62,9 @@ const Footer = () => {
 
         {/* Services */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Our Services</h3>
+          <h3 className="text-base md:text-lg font-semibold mb-3">
+            Our Services
+          </h3>
           <ul className="text-sm text-gray-200 space-y-1">
             {services.map((service, index) => (
               <li key={index}>• {service}</li>
@@ -85,7 +74,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom */}
-      <div className="border-t border-white/30 mt-10 pt-4 text-center text-sm text-gray-200">
+      <div className="border-t border-white/30 mt-8 pt-4 text-center text-xs sm:text-sm text-gray-200">
         © {new Date().getFullYear()} All Rights Reserved
       </div>
 
@@ -93,7 +82,13 @@ const Footer = () => {
       <style>
         {`
           .animate-marquee {
-            animation: marquee 8s linear infinite;
+            animation: marquee 7s linear infinite;
+          }
+
+          @media (max-width: 640px) {
+            .animate-marquee {
+              animation-duration: 7s;
+            }
           }
 
           @keyframes marquee {
@@ -101,7 +96,7 @@ const Footer = () => {
               transform: translateX(0%);
             }
             100% {
-              transform: translateX(-50%);
+              transform: translateX(-100%);
             }
           }
         `}
