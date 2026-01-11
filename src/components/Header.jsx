@@ -83,7 +83,8 @@ const Header = () => {
               <Link to="/medicalCenter">Medical center</Link>
               <Link to="/profile">Profile</Link>
               <p>
-                Balance: <span className="text-yellow-300">00.00</span>
+                Balance:{" "}
+                <span className="text-yellow-300">{user.balance || 0}</span>
               </p>
             </nav>
           )}
@@ -95,6 +96,7 @@ const Header = () => {
               <Link to="/adminPanel">Admin Panel</Link>
               <Link to="/addUser">Add User</Link>
               <Link to="/addMedicalCenter">Add Medical Center</Link>
+              <Link to="/profile">Profile</Link>
             </nav>
           )}
 
@@ -130,7 +132,9 @@ const Header = () => {
               <>
                 <p className="bg-gray-300 p-2 rounded-md text-gray-800 font-medium">
                   Balance:{" "}
-                  <span className="text-yellow-600 font-bold">00.00</span>
+                  <span className="text-yellow-600 font-bold">
+                    {user.balance || 0}
+                  </span>
                 </p>
 
                 <Link to="/dashboard">Dashboard</Link>
@@ -149,9 +153,9 @@ const Header = () => {
                 <Link to="/adminPanel">Admin Panel</Link>
                 <Link to="/addUser">Add User</Link>
                 <Link to="/addMedicalCenter">Add Medical Center</Link>
+                <Link to="/profile">Profile</Link>
               </>
             )}
-
           </div>
         </div>
       </div>
