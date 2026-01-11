@@ -14,6 +14,7 @@ const Header = () => {
   const isUser = user?.role === "user";
   const isAdmin = user?.role === "admin";
 
+
   return (
     <header className="bg-gradient-to-r from-blue-600 to-indigo-800 text-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -65,10 +66,10 @@ const Header = () => {
               className="flex items-center gap-2"
             >
               <div className="bg-white rounded-full items-center p-1">
-                <img src={Logo} alt="Logo" className="w-12 h-12" />
+                <img src={user?.image || Logo} alt="Logo" className="w-12 h-12 rounded-full object-cover" />
               </div>
-              <span className="text-xl font-bold">
-                Tours &<span className="text-yellow-300"> Travels</span>
+              <span className="text-lg font-semibold  text-white capitalize">
+                {user?.username } 
               </span>
             </Link>
           </div>
