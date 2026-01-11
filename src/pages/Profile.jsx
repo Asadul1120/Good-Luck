@@ -107,7 +107,7 @@ console.log(profileData);
           </h1>
           <Link
             to="/change-password"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 text-sm py-1 rounded-lg"
           >
             Change Password
           </Link>
@@ -133,46 +133,80 @@ console.log(profileData);
         </div>
 
         {/* Profile Picture */}
+            {/* Profile Picture */}
         <div className="border-t pt-6 space-y-6">
-          <h2 className="font-medium text-lg">Profile Picture</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Profile Picture
+          </h2>
 
-          <div className="flex gap-8 items-center">
-            <div className="w-32 h-32 rounded-full overflow-hidden border">
-              <img
-                src={profileData.image }
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+            {/* Image */}
+            <div className="flex justify-center sm:justify-start">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border">
+                <img
+                  src={profileData.image || "https://via.placeholder.com/150"}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
 
-            <div className="space-y-3 flex-1">
+            {/* Upload */}
+            <div className="flex-1 space-y-3">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
+                className="block w-full text-sm text-gray-600
+                  file:mr-4 file:py-2.5 file:px-4
+                  file:rounded-lg file:border-0
+                  file:bg-blue-50 file:text-blue-600
+                  hover:file:bg-blue-100"
               />
 
               <button
                 onClick={handleUpdateProfile}
                 disabled={!selectedFile || isUploading}
-                className={`px-5 py-2 rounded-md ${
+                className={`w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium transition ${
                   selectedFile
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-400"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
               >
                 {isUploading ? "Uploading..." : "Update Picture"}
               </button>
 
               {uploadStatus && (
-                <p className="text-sm">{uploadStatus}</p>
+                <p className="text-sm text-gray-600">{uploadStatus}</p>
               )}
             </div>
           </div>
         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       </div>
     </div>
   );
 };
 
 export default Profile;
+
+
+
+
+
+
+
