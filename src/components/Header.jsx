@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import { useAuth } from "../context/AuthContext";
@@ -13,7 +13,6 @@ const Header = () => {
 
   const isUser = user?.role === "user";
   const isAdmin = user?.role === "admin";
-
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-indigo-800 text-white shadow-lg sticky top-0 z-50">
@@ -65,12 +64,16 @@ const Header = () => {
               onClick={closeMobileMenu}
               className="flex items-center gap-2"
             >
-              <div className="bg-white rounded-full items-center p-1">
-                <img src={user?.image || Logo} alt="Logo" className="w-12 h-12 rounded-full object-cover" />
+              <div className="bg-white rounded-full items-center ">
+                <img
+                  src={
+                    user?.image ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  }
+                  alt="Logo"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
               </div>
-              <span className="text-lg font-semibold  text-white capitalize">
-                {user?.username } 
-              </span>
             </Link>
           </div>
 

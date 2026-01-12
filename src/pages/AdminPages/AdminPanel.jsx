@@ -318,10 +318,15 @@ const AdminPanel = () => {
                           <div className="flex items-center">
                             <div className="flex-shrink-0">
                               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-
-                               <img src={u.image} alt="User" className="w-15 h-12 object-cover rounded-full " />
-
-
+                                <img
+                                  src={
+                                    u.image
+                                      ? u.image
+                                      : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                                  }
+                                  alt="User"
+                                  className="w-15 h-12 object-cover rounded-full "
+                                />
                               </div>
                             </div>
                             <div className="ml-4">
@@ -375,7 +380,15 @@ const AdminPanel = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center">
                         <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <img src={u.image} alt="User" className="w-15 h-15 rounded-full" />
+                          <img
+                            src={
+                              u.image
+                                ? u.image
+                                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                            }
+                            alt="User"
+                            className="w-15 h-15 rounded-full"
+                          />
                         </div>
                         <div className="ml-4">
                           <h3 className="font-semibold text-gray-900">

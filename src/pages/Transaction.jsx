@@ -203,6 +203,7 @@ const Transaction = () => {
           </table>
         </div>
       </div>
+      
     </div>
   );
 };

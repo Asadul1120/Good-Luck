@@ -24,8 +24,7 @@ const Profile = () => {
     fetchUserData();
   }, []);
 
-
-console.log(profileData);
+  console.log(profileData);
 
   // ================= FILE CHANGE =================
   const handleFileChange = (e) => {
@@ -80,9 +79,7 @@ console.log(profileData);
       setUploadStatus("Profile picture updated successfully!");
       setSelectedFile(null);
     } catch (error) {
-      setUploadStatus(
-        error.response?.data?.message || "Image upload failed"
-      );
+      setUploadStatus(error.response?.data?.message || "Image upload failed");
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadStatus(""), 3000);
@@ -94,6 +91,7 @@ console.log(profileData);
     { label: "Email:", value: profileData.email },
     { label: "Phone:", value: profileData.phone },
     { label: "Address:", value: profileData.address },
+    { label: "Amount from Submitted Work:", value: profileData.amount || "00" },
     { label: "Total Balance:", value: profileData.balance },
   ];
 
@@ -102,9 +100,7 @@ console.log(profileData);
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Profile Details
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800">Profile Details</h1>
           <Link
             to="/change-password"
             className="bg-yellow-600 hover:bg-yellow-700 text-white px-2 text-sm py-1 rounded-lg"
@@ -118,22 +114,16 @@ console.log(profileData);
           {profileFields.map((field, index) => (
             <div key={index}>
               <div className="flex justify-between">
-                <span className="font-medium text-gray-700">
-                  {field.label}
-                </span>
-                <span className="text-gray-900">
-                  {field.value || "00" }
-                </span>
+                <span className="font-medium text-gray-700">{field.label}</span>
+                <span className="text-gray-900">{field.value || "00"}</span>
               </div>
-              {index < profileFields.length - 1 && (
-                <hr className="mt-3" />
-              )}
+              {index < profileFields.length - 1 && <hr className="mt-3" />}
             </div>
           ))}
         </div>
 
         {/* Profile Picture */}
-            {/* Profile Picture */}
+        {/* Profile Picture */}
         <div className="border-t pt-6 space-y-6">
           <h2 className="text-lg font-semibold text-gray-800">
             Profile Picture
@@ -144,7 +134,10 @@ console.log(profileData);
             <div className="flex justify-center sm:justify-start">
               <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border">
                 <img
-                  src={profileData.image || "https://via.placeholder.com/150"}
+                  src={
+                    profileData.image ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  }
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -182,31 +175,9 @@ console.log(profileData);
             </div>
           </div>
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       </div>
     </div>
   );
 };
 
 export default Profile;
-
-
-
-
-
-
-

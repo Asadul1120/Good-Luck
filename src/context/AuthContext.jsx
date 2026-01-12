@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "../src/api/axios";
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 App load হলে server থেকে user check
+  // 🔁 App load হলে server থেকে logged-in user fetch
   const fetchUser = async () => {
     try {
       const res = await axios.get("/users/me");
@@ -22,15 +23,19 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  // 🔐 LOGIN (username + password)
+  // 🔐 LOGIN (FIXED)
   const login = async (username, password) => {
-    const res = await axios.post("/users/login", {
+    // 1️⃣ Login (JWT cookie set হয়)
+    await axios.post("/users/login", {
       username,
       password,
     });
 
+    // 2️⃣ Immediately full user fetch (image, balance, role সহ)
+    const res = await axios.get("/users/me");
+
     setUser(res.data.user);
-    return res.data;
+    return res.data.user;
   };
 
   // 🚪 LOGOUT

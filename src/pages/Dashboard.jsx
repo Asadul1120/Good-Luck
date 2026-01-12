@@ -12,6 +12,43 @@ function Dashboard() {
   // mobile detection
   const isMobile = window.innerWidth < 768;
 
+  const tableData = [
+    {
+      serial: 1,
+      id: "SLP-1001",
+      slipType: "Normal",
+      dateTime: "2026-01-12 03:30 PM",
+      slipStatus: "Pending",
+      city: "Dhaka",
+      travelingCountry: "Bangladesh",
+      firstName: "Asadul",
+      lastName: "Islam",
+      dob: "1998-05-20",
+      passport: "BA1234567",
+      center: "Dhaka Center",
+      allocateCenter: "Gulshan Center",
+      remarks: "Documents OK",
+      action: "View",
+    },
+    {
+      serial: 2,
+      id: "SLP-1002",
+      slipType: "Normal",
+      dateTime: "2026-01-12 03:30 PM",
+      slipStatus: "Processed",
+      city: "Dhaka",
+      travelingCountry: "Bangladesh",
+      firstName: "Muhammad",
+      lastName: "Islam",
+      dob: "1998-05-20",
+      passport: "BA1234567",
+      center: "Dhaka Center",
+      allocateCenter: "Gulshan Center",
+      remarks: "Documents OK",
+      action: "View",
+    },
+  ];
+
   return (
     <div className="mt-4 px-3 sm:px-4 max-w-7xl mx-auto">
       {/* Navigation Buttons */}
@@ -115,6 +152,71 @@ function Dashboard() {
               Apply Filter
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-center border border-gray-300">
+            <thead className="bg-neutral-800 text-white uppercase">
+              <tr>
+                {[
+                  "S/L",
+                  "ID",
+                  "Slip_Type",
+                  "Date_Time",
+                  "Slip Status",
+                  "City",
+                  "T.Country",
+                  "First Name",
+                  "Last Name",
+                  "DOB",
+                  "Passport",
+                  "Center",
+                  "Allocate Center",
+                  "Remarks",
+                  "Action",
+                ].map((head) => (
+                  <th key={head} className="px-4 py-2 border border-gray-300">
+                    {head}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {tableData.length > 0 ? (
+                tableData.map((row, index) => (
+                  <tr key={index} className="hover:bg-gray-100 ">
+                    <td className="border px-4 py-2">{row.serial}</td>
+                    <td className="border px-4 py-2">{row.id}</td>
+                    <td className="border px-4 py-2">{row.slipType}</td>
+                    <td className="border px-4 py-2 ">{row.dateTime}</td>
+                    <td className="border px-4 py-2 bg-green-600 text-white ">{row.slipStatus}</td>
+                    <td className="border px-4 py-2">{row.city}</td>
+                    <td className="border px-4 py-2">{row.travelingCountry}</td>
+                    <td className="border px-4 py-2">{row.firstName}</td>
+                    <td className="border px-4 py-2">{row.lastName}</td>
+                    <td className="border px-4 py-2">{row.dob}</td>
+                    <td className="border px-4 py-2">{row.passport}</td>
+                    <td className="border px-4 py-2">{row.center}</td>
+                    <td className="border px-4 py-2">{row.allocateCenter}</td>
+                    <td className="border px-4 py-2">{row.remarks}</td>
+                    <td className="border px-4 py-2 text-blue-600 font-medium">
+                      {row.action}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="15" className="py-6 text-center text-gray-500">
+                    No data found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
