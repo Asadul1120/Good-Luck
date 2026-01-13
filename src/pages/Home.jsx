@@ -17,7 +17,7 @@ const Home = () => {
   if (user?.role === "user") {
     return <Navigate to="/dashboard" replace />;
   }
-  // ✅ user থাকলে admin dashboard এ redirect
+  // ✅ admin থাকলে admin dashboard এ redirect
   if (user?.role === "admin") {
     return <Navigate to="/adminDashboard" replace />;
   }

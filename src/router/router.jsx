@@ -19,6 +19,7 @@ import PrivateRoute from "./PrivateRoute";
 import Dashboard from "./../pages/Dashboard";
 import AdminRoute from "./AdminRoute";
 import AdminPanel from "../pages/AdminPages/AdminPanel";
+import AdminDashboard from "../pages/AdminPages/AdminDashboard";
 
 const router = createBrowserRouter([
   {
@@ -125,7 +126,6 @@ const router = createBrowserRouter([
           </AdminRoute>
         ),
       },
-      ,
       {
         path: "/adminPanel",
         element: (
@@ -134,7 +134,14 @@ const router = createBrowserRouter([
           </AdminRoute>
         ),
       },
-
+      {
+        path: "/adminDashboard",
+        element: (
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        ),
+      },
       {
         path: "/login",
         element: <Login />,

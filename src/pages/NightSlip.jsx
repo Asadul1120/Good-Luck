@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
+import axios from "../src/api/axios";
+import { useAuth } from "../context/AuthContext";
 
 const NightSlip = () => {
+  const { user } = useAuth();
+
+  const userId = user?._id;
+
   const [formData, setFormData] = useState({
     country: "Bangladesh",
     city: "Dhaka",
@@ -44,7 +50,6 @@ const NightSlip = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -52,8 +57,6 @@ const NightSlip = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
-    // Required field validation
     const requiredFields = [
       "firstName",
       "lastName",
@@ -65,22 +68,11 @@ const NightSlip = () => {
     ];
 
     requiredFields.forEach((field) => {
-      if (!formData[field].trim()) {
+      if (!formData[field]?.toString().trim()) {
         newErrors[field] = "This field is required";
       }
     });
 
-    // Date validation
-    if (formData.passportIssueDate && formData.passportExpiryDate) {
-      const issueDate = new Date(formData.passportIssueDate);
-      const expiryDate = new Date(formData.passportExpiryDate);
-
-      if (expiryDate <= issueDate) {
-        newErrors.passportExpiryDate = "Expiry date must be after issue date";
-      }
-    }
-
-    // Gender and Marital Status validation
     if (formData.gender === "......") {
       newErrors.gender = "Please select gender";
     }
@@ -89,7 +81,6 @@ const NightSlip = () => {
       newErrors.maritalStatus = "Please select marital status";
     }
 
-    // Position validation
     if (formData.position === "---------") {
       newErrors.position = "Please select a position";
     }
@@ -98,6 +89,7 @@ const NightSlip = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // ================= SUBMIT =================
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -106,9 +98,7 @@ const NightSlip = () => {
       return;
     }
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     if (passportMatchError) {
       alert(passportMatchError);
@@ -118,16 +108,39 @@ const NightSlip = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      console.log("Form submitted:", formData);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 🔁 FRONTEND → BACKEND FIELD MAPPING
+      const payload = {
+        slipType: "Night-Slip",
+        userId: userId,
+        country: formData.country,
+        city: formData.city,
+        travelCountry: formData.countryTravelingTo,
 
-      alert("Form submitted successfully!");
-      // Reset form or redirect here
-      // setFormData({...initialState});
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        dateOfBirth: formData.dob,
+
+        nationality: formData.nationality,
+        gender: formData.gender,
+        maritalStatus: formData.maritalStatus,
+
+        passportNumber: formData.passportNumber,
+        visaType: formData.visaType,
+
+        passportIssueDate: formData.passportIssueDate,
+        passportExpiryDate: formData.passportExpiryDate,
+
+        nationalId: formData.nationalId,
+        positionAppliedFor: formData.position,
+
+        remarks: formData.remarks,
+      };
+
+      await axios.post("/slips", payload);
+
+      alert("Normal Slip submitted successfully ✅");
     } catch (error) {
-      console.error("Submission error:", error);
-      alert("Failed to submit form. Please try again.");
+      alert(error.response?.data?.message || "Failed to submit form");
     } finally {
       setIsSubmitting(false);
     }
@@ -140,13 +153,12 @@ const NightSlip = () => {
     }
 
     const issueDate = new Date(formData.passportIssueDate);
-    const newExpiryDate = new Date(issueDate);
-    newExpiryDate.setFullYear(issueDate.getFullYear() + years);
+    issueDate.setFullYear(issueDate.getFullYear() + years);
 
-    const formattedDate = newExpiryDate.toLocaleDateString("en-GB");
+    const formatted = issueDate.toISOString().split("T")[0];
     setFormData((prev) => ({
       ...prev,
-      passportExpiryDate: formattedDate,
+      passportExpiryDate: formatted,
     }));
   };
 

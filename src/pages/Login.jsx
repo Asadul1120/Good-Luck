@@ -3,12 +3,10 @@ import img from "../assets/img.png";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-
 const Login = () => {
   const { login, loading, user } = useAuth();
   const navigate = useNavigate();
 
-  
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -25,6 +23,7 @@ const Login = () => {
   }, []);
 
   // 🔐 Submit Handler (REAL LOGIN)
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -34,12 +33,15 @@ const Login = () => {
     setIsSubmitting(true);
 
     try {
-      await login(formData.username, formData.password);
-      navigate("/dashboard"); // ✅ login success redirect
+      const loggedInUser = await login(formData.username, formData.password);
+
+      if (loggedInUser.role === "admin") {
+        navigate("/adminDashboard", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Invalid username or password"
-      );
+      setError(err.response?.data?.message || "Invalid username or password");
     } finally {
       setIsSubmitting(false);
     }
@@ -48,7 +50,6 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-
         {/* Logo */}
         <div className="flex justify-center mb-8 bg-white rounded-full">
           <img src={img} alt="Logo" className="w-24 h-24" />
