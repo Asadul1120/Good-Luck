@@ -20,6 +20,8 @@ import Dashboard from "./../pages/Dashboard";
 import AdminRoute from "./AdminRoute";
 import AdminPanel from "../pages/AdminPages/AdminPanel";
 import AdminDashboard from "../pages/AdminPages/AdminDashboard";
+import SlipView from "../components/SlipView";
+import AdminDeposits from "../pages/AdminPages/AdminDeposits";
 
 const router = createBrowserRouter([
   {
@@ -135,6 +137,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/depositRequests",
+        element: (
+          <AdminRoute>
+            <AdminDeposits />
+          </AdminRoute>
+        ),
+      },
+      {
         path: "/adminDashboard",
         element: (
           <AdminRoute>
@@ -143,6 +153,11 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/slip/:id",
+        element: <SlipView />,
+      },
+      {
+
         path: "/login",
         element: <Login />,
       },

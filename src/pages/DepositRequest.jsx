@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "../src/api/axios";
 
 const DepositRequest = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,31 @@ const DepositRequest = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  // Payment method wise account info
+  const paymentAccounts = {
+    "NRBC Bank PLC.": {
+      label: "NRBC Bank",
+      account: "A/C No: 123456789",
+    },
+    Nagad: {
+      label: "Nagad",
+      account: "0191-000000",
+    },
+    Bkash: {
+      label: "Bkash",
+      account: "0171-000000",
+    },
+    Rocket: {
+      label: "Rocket",
+      account: "0155-000000",
+    },
+    "Eastern Bank Limited.": {
+      label: "Eastern Bank",
+      account: "A/C No: 987654321",
+    },
+  };
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -23,11 +49,10 @@ const DepositRequest = () => {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = {};
 
-    // Simple validation
+    const newErrors = {};
     if (!formData.amount) newErrors.amount = "Amount is required";
     if (formData.paymentMethod === ".....")
       newErrors.paymentMethod = "Select payment method";
@@ -43,11 +68,42 @@ const DepositRequest = () => {
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log("Form submitted:", formData);
+    if (Object.keys(newErrors).length !== 0) return;
+
+    try {
+      setLoading(true);
+
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
+
+      await axios.post("/deposits", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       alert("Deposit request submitted successfully!");
-      // Reset form if needed
-      // setFormData({...initialState});
+
+      // optional reset
+      setFormData({
+        amount: "",
+        paymentMethod: ".....",
+        referenceNo: "",
+        depositDate: "",
+        depositTime: "",
+        depositSlip: null,
+        remarks: "",
+      });
+    } catch (error) {
+      console.error(error);
+      alert(
+        error?.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,7 +130,7 @@ const DepositRequest = () => {
               name="amount"
               value={formData.amount}
               onChange={handleChange}
-              className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
+              className={`w-full border rounded-lg p-2 ${
                 errors.amount ? "border-red-500" : ""
               }`}
               placeholder="Enter amount"
@@ -93,7 +149,7 @@ const DepositRequest = () => {
               name="paymentMethod"
               value={formData.paymentMethod}
               onChange={handleChange}
-              className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
+              className={`w-full border rounded-lg p-2 ${
                 errors.paymentMethod ? "border-red-500" : ""
               }`}
             >
@@ -119,6 +175,18 @@ const DepositRequest = () => {
             )}
           </div>
 
+          {/* Auto account info */}
+          {paymentAccounts[formData.paymentMethod] && (
+            <div className="bg-gray-100 border rounded-lg p-3">
+              <p className="text-sm font-semibold text-gray-700">
+                {paymentAccounts[formData.paymentMethod].label}
+              </p>
+              <p className="text-gray-800">
+                {paymentAccounts[formData.paymentMethod].account}
+              </p>
+            </div>
+          )}
+
           {/* Reference No */}
           <div>
             <label className="block font-medium text-gray-700 mb-1">
@@ -129,7 +197,7 @@ const DepositRequest = () => {
               name="referenceNo"
               value={formData.referenceNo}
               onChange={handleChange}
-              className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
+              className={`w-full border rounded-lg p-2 ${
                 errors.referenceNo ? "border-red-500" : ""
               }`}
               placeholder="Enter reference number"
@@ -139,96 +207,56 @@ const DepositRequest = () => {
             )}
           </div>
 
-          {/* Deposit Date & Time */}
+          {/* Date & Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium text-gray-700 mb-1">
-                Deposit Date *
-              </label>
-              <input
-                type="date"
-                name="depositDate"
-                value={formData.depositDate}
-                onChange={handleChange}
-                className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
-                  errors.depositDate ? "border-red-500" : ""
-                }`}
-              />
-              {errors.depositDate && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.depositDate}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="block font-medium text-gray-700 mb-1">
-                Deposit Time *
-              </label>
-              <input
-                type="time"
-                name="depositTime"
-                value={formData.depositTime}
-                onChange={handleChange}
-                className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
-                  errors.depositTime ? "border-red-500" : ""
-                }`}
-              />
-              {errors.depositTime && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.depositTime}
-                </p>
-              )}
-            </div>
+            <input
+              type="date"
+              name="depositDate"
+              value={formData.depositDate}
+              onChange={handleChange}
+              className={`border rounded-lg p-2 ${
+                errors.depositDate ? "border-red-500" : ""
+              }`}
+            />
+            <input
+              type="time"
+              name="depositTime"
+              value={formData.depositTime}
+              onChange={handleChange}
+              className={`border rounded-lg p-2 ${
+                errors.depositTime ? "border-red-500" : ""
+              }`}
+            />
           </div>
-          <p className="text-sm text-gray-500">
-            Please enter the exact date and time of the deposit (e.g.,
-            02/04/2025 04:30 PM).
-          </p>
 
           {/* Deposit Slip */}
-          <div>
-            <label className="block font-medium text-gray-700 mb-1">
-              Deposit Slip *
-            </label>
-            <input
-              type="file"
-              name="depositSlip"
-              onChange={handleChange}
-              className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
-                errors.depositSlip ? "border-red-500" : ""
-              }`}
-            />
-            {errors.depositSlip && (
-              <p className="text-red-500 text-sm mt-1">{errors.depositSlip}</p>
-            )}
-          </div>
+          <input
+            type="file"
+            name="depositSlip"
+            onChange={handleChange}
+            className={`w-full border rounded-lg p-2 ${
+              errors.depositSlip ? "border-red-500" : ""
+            }`}
+          />
 
           {/* Remarks */}
-          <div>
-            <label className="block font-medium text-gray-700 mb-1">
-              Remarks *
-            </label>
-            <input
-              type="text"
-              name="remarks"
-              value={formData.remarks}
-              onChange={handleChange}
-              className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
-                errors.remarks ? "border-red-500" : ""
-              }`}
-              placeholder="Enter remarks"
-            />
-            {errors.remarks && (
-              <p className="text-red-500 text-sm mt-1">{errors.remarks}</p>
-            )}
-          </div>
+          <input
+            type="text"
+            name="remarks"
+            value={formData.remarks}
+            onChange={handleChange}
+            className={`w-full border rounded-lg p-2 ${
+              errors.remarks ? "border-red-500" : ""
+            }`}
+            placeholder="Enter remarks"
+          />
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition"
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg"
           >
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
       </div>

@@ -6,6 +6,11 @@ const NightSlip = () => {
   const { user } = useAuth();
 
   const userId = user?._id;
+  const userEmail = user?.email;
+  const userPhone = user?.phone;
+  const userBalance = user?.balance;
+
+  console.log(userId, userEmail, userPhone, userBalance);
 
   const [formData, setFormData] = useState({
     country: "Bangladesh",
@@ -112,6 +117,10 @@ const NightSlip = () => {
       const payload = {
         slipType: "Night-Slip",
         userId: userId,
+        email: userEmail,
+        phone: userPhone,
+        balance: userBalance,
+
         country: formData.country,
         city: formData.city,
         travelCountry: formData.countryTravelingTo,
