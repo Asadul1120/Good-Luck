@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                       rel="noopener noreferrer"
                       className="underline"
                     >
-                      {`${window.location.origin}/slip/${item._id}`}
+                     {`${window.location.origin}/slip/${item._id}`}
                     </Link>
                   ) : (
                     "-"

@@ -41,12 +41,25 @@ const DepositRequest = () => {
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "file" ? files[0] : value,
-    }));
 
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    if (type === "file") {
+      const file = files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Deposit slip must be under 5MB");
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        alert("Only image files allowed");
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, [name]: file }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {

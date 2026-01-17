@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Logo from "../assets/Logo.png";
 import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
@@ -155,7 +154,7 @@ const Header = () => {
             {isAdmin && (
               <>
                 <Link to="/adminDashboard">Admin Dashboard</Link>
-                <Link to="/depositRequests">Deposit Requests</Link>
+                <Link to="/depositRequests">User Deposit </Link>
                 <Link to="/adminPanel">Admin Panel</Link>
                 <Link to="/addUser">Add User</Link>
                 <Link to="/addMedicalCenter">Add Medical Center</Link>
