@@ -7,6 +7,7 @@
 //   const [statusFilter, setStatusFilter] = useState("all");
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [paymentLinks, setPaymentLinks] = useState({});
+//   const [amounts, setAmounts] = useState({}); // ✅ AMOUNT STATE
 
 //   useEffect(() => {
 //     fetchData();
@@ -20,18 +21,16 @@
 //       console.error(err);
 //     }
 //   };
-//   console.log(data);
+
 //   const handleStatusChange = async (id, newStatus) => {
 //     try {
 //       await axios.patch(`/slips/${id}/status`, { status: newStatus });
-
 //       setData((prev) =>
 //         prev.map((item) =>
-//           item._id === id ? { ...item, status: newStatus } : item
-//         )
+//           item._id === id ? { ...item, status: newStatus } : item,
+//         ),
 //       );
 //     } catch (error) {
-//       console.error(error);
 //       alert("Status update failed");
 //     }
 //   };
@@ -105,7 +104,7 @@
 //           value={statusFilter}
 //           onChange={(e) => setStatusFilter(e.target.value)}
 //           className={`px-4 py-2 rounded-md border font-semibold outline-none
-//     ${getStatusClass(statusFilter)}`}
+//             ${getStatusClass(statusFilter)}`}
 //         >
 //           <option value="all">All Status</option>
 //           <option value="no-balance">NO-BALANCE</option>
@@ -158,14 +157,17 @@
 
 //           <tbody>
 //             {filteredData.map((item, index) => (
-//               <tr key={item._id} className="hover:bg-gray-50">
-//                 <td className="border px-2 py-1 text-center">{index + 1}</td>
-//                 <td className="border px-2 py-1 font-semibold text-blue-600">
+//               <tr key={item._id}>
+//                 <td className="border px-2 py-1">{index + 1}</td>
+//                 <td className="border px-2 py-1 text-blue-600 font-semibold">
 //                   {item.slipType}
 //                 </td>
 //                 <td className="border px-2 py-1 uppercase">
-//                   {item.user.slice(0, 6)}
+//                   {typeof item.user === "string"
+//                     ? item.user.slice(0, 6)
+//                     : item.user?._id?.slice(0, 6) || "-"}
 //                 </td>
+
 //                 <td className="border px-2 py-1">{item.firstName}</td>
 //                 <td className="border px-2 py-1">{item.lastName}</td>
 //                 <td className="border px-2 py-1">
@@ -175,21 +177,24 @@
 //                 </td>
 //                 <td className="border px-2 py-1">{item.gender}</td>
 //                 <td className="border px-2 py-1">{item.maritalStatus}</td>
-
 //                 <td className="border px-2 py-1">{item.passportNumber}</td>
+
 //                 <td className="border px-2 py-1">
 //                   {item.passportIssueDate
 //                     ? new Date(item.passportIssueDate).toLocaleDateString()
 //                     : "-"}
 //                 </td>
+
 //                 <td className="border px-2 py-1">
 //                   {item.passportIssuePlace || "-"}
 //                 </td>
+
 //                 <td className="border px-2 py-1">
 //                   {item.passportExpiryDate
 //                     ? new Date(item.passportExpiryDate).toLocaleDateString()
 //                     : "-"}
 //                 </td>
+
 //                 <td className="border px-2 py-1">{item.visaType}</td>
 //                 <td className="border px-2 py-1">{item.email}</td>
 //                 <td className="border px-2 py-1">{item.phone}</td>
@@ -204,23 +209,32 @@
 //                 </td>
 
 //                 {/* STATUS */}
-//                 <td className="border px-2 py-1 text-center">
+//                 <td className="border px-2 py-1">
 //                   <select
 //                     value={item.status}
-//                     disabled={item.status === "complete"} // ✅ LOCK WHEN COMPLETE
+//                     disabled={item.status === "complete"}
 //                     onChange={(e) =>
 //                       handleStatusChange(item._id, e.target.value)
 //                     }
-//                     className={`px-2 py-1 rounded text-xs font-semibold border outline-none
-//       ${getStatusClass(item.status)}
-//       ${item.status === "complete" ? "cursor-not-allowed opacity-70" : ""}`}
+//                     className={`px-2 py-1 text-xs rounded font-semibold border
+//                       ${getStatusClass(item.status)}
+//                       ${
+//                         item.status === "complete"
+//                           ? "cursor-not-allowed opacity-70"
+//                           : ""
+//                       }`}
 //                   >
 //                     {[
 //                       { value: "no-balance", label: "NO-BALANCE" },
 //                       { value: "no-queue", label: "NO-QUEUE" },
 //                       { value: "processing", label: "[PROCESSING]" },
 //                       { value: "processing-link", label: "[PROCESSING-LINK]" },
-//                       { value: "complete", label: "COMPLETE" },
+
+//                       // ✅ ONLY show COMPLETE if paymentLink exists
+//                       ...(item.paymentLink
+//                         ? [{ value: "complete", label: "COMPLETE" }]
+//                         : []),
+
 //                       { value: "cancelled", label: "CANCELLED" },
 //                       { value: "other", label: "OTHER COMMENT ANY ISSUE" },
 //                     ].map((opt) => (
@@ -233,9 +247,22 @@
 
 //                 <td className="border px-2 py-1">{item.remarks || "-"}</td>
 
-//                 {/* URL INPUT + ACTION BUTTON (GOLDEN LOOK) */}
+//                 {/* AMOUNT + URL + SEND */}
 //                 <td className="border px-2 py-1" colSpan={2}>
-//                   <div className="flex items-center gap-2">
+//                   <div className="flex gap-2 items-center">
+//                     <input
+//                       type="number"
+//                       placeholder="Amount"
+//                       value={amounts[item._id] || ""}
+//                       onChange={(e) =>
+//                         setAmounts((prev) => ({
+//                           ...prev,
+//                           [item._id]: e.target.value,
+//                         }))
+//                       }
+//                       className="w-20 px-2 py-1 border rounded text-xs"
+//                     />
+
 //                     <input
 //                       type="text"
 //                       placeholder="Payment URL"
@@ -246,33 +273,37 @@
 //                           [item._id]: e.target.value,
 //                         }))
 //                       }
-//                       className="px-2 py-1 border rounded text-xs w-full"
+//                       className="px-2 py-1 border rounded text-xs flex-1"
 //                     />
+
 //                     <button
+//                       disabled={item.status === "complete"}
 //                       onClick={async () => {
 //                         try {
 //                           await axios.patch(`/slips/${item._id}/payment-link`, {
 //                             paymentLink: paymentLinks[item._id],
+//                             amount: Number(amounts[item._id]),
 //                           });
 
 //                           setData((prev) =>
 //                             prev.map((s) =>
 //                               s._id === item._id
-//                                 ? {
-//                                     ...s,
-//                                     paymentLink: paymentLinks[item._id],
-//                                     status: "complete",
-//                                   }
-//                                 : s
-//                             )
+//                                 ? { ...s, status: "complete" }
+//                                 : s,
+//                             ),
 //                           );
 
 //                           alert("Payment link sent ✅");
-//                         } catch (err) {
+//                         } catch {
 //                           alert("Failed to send payment link");
 //                         }
 //                       }}
-//                       className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs rounded"
+//                       className={`px-3 py-1 text-xs rounded font-semibold
+//                         ${
+//                           item.status === "complete"
+//                             ? "bg-gray-400 cursor-not-allowed"
+//                             : "bg-yellow-500 hover:bg-yellow-600 text-white"
+//                         }`}
 //                     >
 //                       Send
 //                     </button>
@@ -283,7 +314,7 @@
 
 //             {filteredData.length === 0 && (
 //               <tr>
-//                 <td colSpan="25" className="text-center py-6 text-gray-500">
+//                 <td colSpan="25" className="py-6 text-gray-500">
 //                   No data found
 //                 </td>
 //               </tr>
@@ -297,8 +328,15 @@
 
 // export default AdminDashboard;
 
+
+
+
 import React, { useEffect, useState } from "react";
 import axios from "../../src/api/axios";
+
+const isValidDate = (date) => {
+  return date instanceof Date && !isNaN(date);
+};
 
 const AdminDashboard = () => {
   const [data, setData] = useState([]);
@@ -326,8 +364,8 @@ const AdminDashboard = () => {
       await axios.patch(`/slips/${id}/status`, { status: newStatus });
       setData((prev) =>
         prev.map((item) =>
-          item._id === id ? { ...item, status: newStatus } : item
-        )
+          item._id === id ? { ...item, status: newStatus } : item,
+        ),
       );
     } catch (error) {
       alert("Status update failed");
@@ -462,14 +500,18 @@ const AdminDashboard = () => {
                   {item.slipType}
                 </td>
                 <td className="border px-2 py-1 uppercase">
-                  {item.user.slice(0, 6)}
+                  {typeof item.user === "string"
+                    ? item.user?.slice(0, 6) || "-"
+                    : item.user?._id?.slice(0, 6) || "-"}
                 </td>
 
                 <td className="border px-2 py-1">{item.firstName}</td>
                 <td className="border px-2 py-1">{item.lastName}</td>
                 <td className="border px-2 py-1">
                   {item.dateOfBirth
-                    ? new Date(item.dateOfBirth).toLocaleDateString()
+                    ? isValidDate(new Date(item.dateOfBirth))
+                      ? new Date(item.dateOfBirth).toLocaleDateString()
+                      : item.dateOfBirth
                     : "-"}
                 </td>
                 <td className="border px-2 py-1">{item.gender}</td>
@@ -478,7 +520,9 @@ const AdminDashboard = () => {
 
                 <td className="border px-2 py-1">
                   {item.passportIssueDate
-                    ? new Date(item.passportIssueDate).toLocaleDateString()
+                    ? isValidDate(new Date(item.passportIssueDate))
+                      ? new Date(item.passportIssueDate).toLocaleDateString()
+                      : item.passportIssueDate
                     : "-"}
                 </td>
 
@@ -488,7 +532,9 @@ const AdminDashboard = () => {
 
                 <td className="border px-2 py-1">
                   {item.passportExpiryDate
-                    ? new Date(item.passportExpiryDate).toLocaleDateString()
+                    ? isValidDate(new Date(item.passportExpiryDate))
+                      ? new Date(item.passportExpiryDate).toLocaleDateString()
+                      : item.passportExpiryDate
                     : "-"}
                 </td>
 
@@ -586,8 +632,8 @@ const AdminDashboard = () => {
                             prev.map((s) =>
                               s._id === item._id
                                 ? { ...s, status: "complete" }
-                                : s
-                            )
+                                : s,
+                            ),
                           );
 
                           alert("Payment link sent ✅");
