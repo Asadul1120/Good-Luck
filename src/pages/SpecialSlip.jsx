@@ -23,6 +23,7 @@ const SpecialSlip = () => {
     visaType: "Work Visa",
     passportIssueDate: "",
     passportExpiryDate: "",
+    passportIssuePlace: "",
     nationalId: "",
     position: "---------",
     medicalCenter: "---------",
@@ -57,6 +58,29 @@ const SpecialSlip = () => {
     }
   };
 
+  const validateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age >= 18;
+  };
+
+  const validatePassportValidity = (issueDate, expiryDate) => {
+    const issue = new Date(issueDate);
+    const expiry = new Date(expiryDate);
+    const diffInYears = (expiry - issue) / (1000 * 60 * 60 * 24 * 365.25);
+    return diffInYears >= 5;
+  };
+
   const validateForm = () => {
     const newErrors = {};
     const requiredFields = [
@@ -87,6 +111,26 @@ const SpecialSlip = () => {
       newErrors.position = "Please select a position";
     }
 
+    // Date of Birth validation - must be at least 18 years old
+    if (formData.dob) {
+      if (!validateAge(formData.dob)) {
+        newErrors.dob = "Applicant must be at least 18 years old";
+      }
+    }
+
+    // Passport validity validation - must be at least 5 years
+    if (formData.passportIssueDate && formData.passportExpiryDate) {
+      if (
+        !validatePassportValidity(
+          formData.passportIssueDate,
+          formData.passportExpiryDate,
+        )
+      ) {
+        newErrors.passportExpiryDate =
+          "Passport validity must be at least 5 years";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,6 +141,31 @@ const SpecialSlip = () => {
 
     if (!formData.agreeTerms) {
       alert("Please agree to terms and conditions");
+      return;
+    }
+
+    // Validate age before form submission
+    if (formData.dob && !validateAge(formData.dob)) {
+      setErrors((prev) => ({
+        ...prev,
+        dob: "Applicant must be at least 18 years old",
+      }));
+      return;
+    }
+
+    // Validate passport validity before form submission
+    if (
+      formData.passportIssueDate &&
+      formData.passportExpiryDate &&
+      !validatePassportValidity(
+        formData.passportIssueDate,
+        formData.passportExpiryDate,
+      )
+    ) {
+      setErrors((prev) => ({
+        ...prev,
+        passportExpiryDate: "Passport validity must be at least 5 years",
+      }));
       return;
     }
 
@@ -134,7 +203,7 @@ const SpecialSlip = () => {
 
         passportIssueDate: formData.passportIssueDate,
         passportExpiryDate: formData.passportExpiryDate,
-
+        passportIssuePlace: formData.passportIssuePlace,
 
         nationalId: formData.nationalId,
         positionAppliedFor: formData.position,
@@ -487,14 +556,14 @@ const SpecialSlip = () => {
                 <button
                   type="button"
                   onClick={() => handleAddYears(5)}
-                  className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+                  className="px-3 py-1 text-sm bg-cyan-400 hover:bg-gray-300 rounded"
                 >
                   +5 Years
                 </button>
                 <button
                   type="button"
                   onClick={() => handleAddYears(10)}
-                  className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+                  className="px-3 py-1 text-sm bg-green-400 hover:bg-gray-300 rounded"
                 >
                   +10 Years
                 </button>
@@ -505,6 +574,19 @@ const SpecialSlip = () => {
                 </p>
               )}
             </div>
+          </div>
+          {/* Passport Issue Place */}
+          <div>
+            <label className="block font-medium text-gray-700 mb-1">
+              Passport Issue Place
+            </label>
+            <input
+              type="text"
+              name="passportIssuePlace"
+              value={formData.passportIssuePlace}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+            />
           </div>
 
           {/* National ID */}
@@ -670,7 +752,7 @@ const SpecialSlip = () => {
               onChange={handleChange}
               placeholder="Write your own remarks here"
               className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-              rows="6"
+              rows="1"
             ></textarea>
           </div>
 
