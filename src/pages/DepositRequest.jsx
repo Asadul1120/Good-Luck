@@ -17,25 +17,23 @@ const DepositRequest = () => {
 
   // Payment method wise account info
   const paymentAccounts = {
-    "NRBC Bank PLC.": {
-      label: "NRBC Bank",
-      account: "A/C No: 123456789",
+    "SOUTHEAST BANK LIMITED": {
+      label: "SOUTHEAST BANK LIMITED",
+      account: "A/C No:002712100017581",
+      Name: "Md Zahirul Islam",
+      Branch: "Motijheel Branch",
     },
     Nagad: {
-      label: "Nagad",
-      account: "0191-000000",
+      label: "Nagad personal",
+      account: "01951337553",
     },
     Bkash: {
-      label: "Bkash",
-      account: "0171-000000",
+      label: "Bkash personal",
+      account: "01951337553",
     },
-    Rocket: {
-      label: "Rocket",
-      account: "0155-000000",
-    },
-    "Eastern Bank Limited.": {
-      label: "Eastern Bank",
-      account: "A/C No: 987654321",
+    "Bkash Payment": {
+      label: "Bkash Payment",
+      account: "01634846064",
     },
   };
 
@@ -168,11 +166,10 @@ const DepositRequest = () => {
             >
               {[
                 ".....",
-                "NRBC Bank PLC.",
+                "SOUTHEAST BANK LIMITED.",
                 "Nagad",
                 "Bkash",
-                "Rocket",
-                "Eastern Bank Limited.",
+                "Bkash Payment",
                 "Other or cash",
                 "Refund",
               ].map((method) => (

@@ -211,15 +211,6 @@
 
 // export default MedicalCenter;
 
-
-
-
-
-
-
-
-
-
 import React, { useMemo, useState } from "react";
 
 /* 🔹 Mock Data (replace with API later) */
@@ -270,17 +261,7 @@ const countryCityMap = {
   Nepal: ["Kathmandu", "Biratnagar", "Pokhara", "Butwal", "Jhapa"],
 };
 
-const tableHeaders = [
-  "Name",
-  "Country",
-  "City",
-  "Address",
-  "Phone",
-  "Email",
-  "Website",
-  "Rating",
-  "Time",
-];
+const tableHeaders = ["S.L", "Name", "Country", "City", "Price", "Quota"];
 
 const MedicalCenter = () => {
   const [country, setCountry] = useState("");
@@ -299,9 +280,7 @@ const MedicalCenter = () => {
         (!country || center.country === country) &&
         (!city || center.city === city) &&
         (!centerName ||
-          center.name
-            ?.toLowerCase()
-            .includes(centerName.toLowerCase()))
+          center.name?.toLowerCase().includes(centerName.toLowerCase()))
       );
     });
   }, [country, city, centerName]);
@@ -420,18 +399,12 @@ const MedicalCenter = () => {
                       {c.address1}, {c.address2}
                     </td>
                     <td className="border px-2 py-1">
-                      <a
-                        href={`tel:${c.phone}`}
-                        className="text-blue-600"
-                      >
+                      <a href={`tel:${c.phone}`} className="text-blue-600">
                         {c.phone}
                       </a>
                     </td>
                     <td className="border px-2 py-1">
-                      <a
-                        href={`mailto:${c.email}`}
-                        className="text-blue-600"
-                      >
+                      <a href={`mailto:${c.email}`} className="text-blue-600">
                         {c.email}
                       </a>
                     </td>
@@ -459,4 +432,3 @@ const MedicalCenter = () => {
 };
 
 export default MedicalCenter;
-

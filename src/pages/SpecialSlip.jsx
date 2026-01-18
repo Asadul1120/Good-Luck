@@ -113,7 +113,7 @@ const SpecialSlip = () => {
       // 🔁 FRONTEND → BACKEND FIELD MAPPING
       const payload = {
         slipType: "Special-Slip",
-        userId: userId,
+        user: user?._id,
         email: userEmail,
         phone: userPhone,
         balance: userBalance,
@@ -134,6 +134,7 @@ const SpecialSlip = () => {
 
         passportIssueDate: formData.passportIssueDate,
         passportExpiryDate: formData.passportExpiryDate,
+
 
         nationalId: formData.nationalId,
         positionAppliedFor: formData.position,

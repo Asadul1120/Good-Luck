@@ -5,12 +5,9 @@ import axios from "../src/api/axios";
 import { useAuth } from "../context/AuthContext";
 
 const NormalSlip = () => {
-  
   const { user } = useAuth();
-  const userId = user?._id;
   const userEmail = user?.email;
   const userPhone = user?.phone;
-  const userBalance = user?.balance;
 
   const [formData, setFormData] = useState({
     country: "Bangladesh",
@@ -27,6 +24,7 @@ const NormalSlip = () => {
     visaType: "Work Visa",
     passportIssueDate: "",
     passportExpiryDate: "",
+    passportIssuePlace: "",
     nationalId: "",
     position: "---------",
     remarks: "",
@@ -116,14 +114,12 @@ const NormalSlip = () => {
       // 🔁 FRONTEND → BACKEND FIELD MAPPING
       const payload = {
         slipType: "Normal-Slip",
-        userId: userId,
+        user: user?._id, // ✅ MUST ADD (THIS IS THE FIX)
         email: userEmail,
         phone: userPhone,
-        balance: userBalance,
         country: formData.country,
         city: formData.city,
         travelCountry: formData.countryTravelingTo,
-
         firstName: formData.firstName,
         lastName: formData.lastName,
         dateOfBirth: formData.dob,
@@ -137,12 +133,15 @@ const NormalSlip = () => {
 
         passportIssueDate: formData.passportIssueDate,
         passportExpiryDate: formData.passportExpiryDate,
+        passportIssuePlace: formData.passportIssuePlace,
 
         nationalId: formData.nationalId,
         positionAppliedFor: formData.position,
 
         remarks: formData.remarks,
       };
+
+      console.log(payload);
 
       await axios.post("/slips", payload);
 
@@ -520,6 +519,20 @@ const NormalSlip = () => {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Passport Issue Place */}
+          <div>
+            <label className="block font-medium text-gray-700 mb-1">
+              Passport Issue Place
+            </label>
+            <input
+              type="text"
+              name="passportIssuePlace"
+              value={formData.passportIssuePlace}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+            />
           </div>
 
           {/* National ID */}
