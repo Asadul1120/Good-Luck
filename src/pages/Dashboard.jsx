@@ -300,7 +300,7 @@ function Dashboard() {
                     </td>
 
                     {/* ID */}
-                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3 font-mono text-xs">
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3 font-mono text-xs uppercase">
                       {typeof row.user === "string"
                         ? row.user?.slice(0, 6)
                         : row.user?._id?.slice(0, 6)}
@@ -347,7 +347,16 @@ function Dashboard() {
 
                     {/* Date of Birth */}
                     <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
-                      {row.dateOfBirth}
+                      {row.dateOfBirth
+                        ? new Date(row.dateOfBirth).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "2-digit",
+                            },
+                          )
+                        : "-"}
                     </td>
 
                     {/* Passport */}
