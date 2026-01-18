@@ -1,108 +1,221 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "../src/api/axios";
 
 function Dashboard() {
   const today = new Date();
 
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
+  const [tableData, setTableData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // mobile detection
-  const isMobile = window.innerWidth < 768;
+  const [type, setType] = useState("all");
+  const [status, setStatus] = useState("all");
 
-  const tableData = [
-    {
-      serial: 1,
-      id: "SLP-1001",
-      slipType: "Normal",
-      dateTime: "2026-01-12 03:30 PM",
-      slipStatus: "Pending",
-      city: "Dhaka",
-      travelingCountry: "Bangladesh",
-      firstName: "Asadul",
-      lastName: "Islam",
-      dob: "1998-05-20",
-      passport: "BA1234567",
-      center: "Dhaka Center",
-      allocateCenter: "Gulshan Center",
-      remarks: "Documents OK",
-      action: "View",
-    },
-    {
-      serial: 2,
-      id: "SLP-1002",
-      slipType: "Normal",
-      dateTime: "2026-01-12 03:30 PM",
-      slipStatus: "Processed",
-      city: "Dhaka",
-      travelingCountry: "Bangladesh",
-      firstName: "Muhammad",
-      lastName: "Islam",
-      dob: "1998-05-20",
-      passport: "BA1234567",
-      center: "Dhaka Center",
-      allocateCenter: "Gulshan Center",
-      remarks: "Documents OK",
-      action: "View",
-    },
+  // Responsive check with debounce - কমিয়ে 576px করা হয়েছে
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 576);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 576);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("/slips");
+        setTableData(response.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to fetch data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const filteredData = useMemo(() => {
+    return tableData.filter((row) => {
+      const rowDate = new Date(row.createdAt);
+
+      const start = startDate
+        ? new Date(new Date(startDate).setHours(0, 0, 0, 0))
+        : null;
+      const end = endDate
+        ? new Date(new Date(endDate).setHours(23, 59, 59, 999))
+        : null;
+
+      const matchType =
+        type === "all" ||
+        row.slipType?.toLowerCase().includes(type.toLowerCase());
+
+      const matchStatus =
+        status === "all" || row.status?.toLowerCase() === status.toLowerCase();
+
+      const matchStartDate = !start || rowDate >= start;
+      const matchEndDate = !end || rowDate <= end;
+
+      return matchType && matchStatus && matchStartDate && matchEndDate;
+    });
+  }, [tableData, type, status, startDate, endDate]);
+
+  const handleDelete = useCallback(async (id) => {
+    if (!window.confirm("Are you sure you want to delete this slip?")) return;
+
+    try {
+      await axios.delete(`/slips/${id}`);
+      setTableData((prev) => prev.filter((item) => item._id !== id));
+    } catch (error) {
+      alert("Delete failed. Please try again.");
+    }
+  }, []);
+
+  const formatDate = useCallback((dateString) => {
+    return new Date(dateString).toLocaleString("en-IN");
+  }, []);
+
+  const getStatusColor = useCallback((status) => {
+    const statusLower = status?.toLowerCase();
+    switch (statusLower) {
+      case "complete":
+        return "bg-green-600";
+      case "approved":
+        return "bg-blue-600";
+      case "canceled":
+        return "bg-red-600";
+      case "no-balance":
+        return "bg-orange-600";
+      case "processing":
+        return "bg-cyan-600";
+      default:
+        return "bg-yellow-500";
+    }
+  }, []);
+
+  const getStatusText = useCallback((status) => {
+    const statusLower = status?.toLowerCase();
+    switch (statusLower) {
+      case "no-balance":
+        return "NO BALANCE";
+      case "on-queue":
+        return "ON QUEUE";
+      default:
+        return status?.toUpperCase();
+    }
+  }, []);
+
+  // সব ডিভাইসে একই headers রাখছি
+  const tableHeaders = [
+    "S.N",
+    "ID",
+    "Slip_Type",
+    "Date_Time",
+    "Slip Status",
+    "City",
+    "T.Country",
+    "First Name",
+    "Last Name",
+    "DOB",
+    "Passport",
+    "Center",
+    "Allocate Center",
+    "Remarks",
+    "Action",
   ];
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-10">
+        <div className="text-red-500 mb-2">{error}</div>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-4 px-3 sm:px-4 max-w-7xl mx-auto">
-      {/* Navigation Buttons */}
-      <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-3 mb-6">
+    <div className="mt-4 px-2 sm:px-4 max-w-7xl mx-auto">
+      {/* Navigation Buttons - মোবাইলের জন্য কল সাইজ */}
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-3 mb-6">
         <Link
           to="/normal-slip"
-          className="bg-indigo-500 text-white text-center px-3 py-2 rounded-lg font-semibold shadow hover:bg-indigo-600"
+          className="bg-indigo-500 text-white text-center px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-semibold shadow hover:bg-indigo-600 transition-colors duration-200 text-xs sm:text-sm"
         >
           Normal Slip
         </Link>
         <Link
           to="/night-slip"
-          className="bg-green-500 text-white text-center px-3 py-2 rounded-lg font-semibold shadow hover:bg-green-600"
+          className="bg-green-500 text-white text-center px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-semibold shadow hover:bg-green-600 transition-colors duration-200 text-xs sm:text-sm"
         >
           Night Slip
         </Link>
         <Link
           to="/special-slip"
-          className="bg-cyan-500 text-white text-center px-3 py-2 rounded-lg font-semibold shadow hover:bg-cyan-600"
+          className="bg-cyan-500 text-white text-center px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-semibold shadow hover:bg-cyan-600 transition-colors duration-200 text-xs sm:text-sm"
         >
           Special Slip
         </Link>
         <Link
           to="/slip-payment"
-          className="bg-amber-500 text-white text-center px-3 py-2 rounded-lg font-semibold shadow hover:bg-amber-600"
+          className="bg-amber-500 text-white text-center px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg font-semibold shadow hover:bg-amber-600 transition-colors duration-200 text-xs sm:text-sm"
         >
           Slip Payment
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-          {/* Type */}
+      {/* Filters Section */}
+      <div className="bg-white p-3 sm:p-4 rounded-lg shadow mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 items-end">
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-600">
+            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-600">
               Type
             </label>
-            <select className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-              <option value="all">All</option>
-              <option value="normal">Normal</option>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="w-full border rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors duration-200"
+            >
+              <option value="all">All Types</option>
+              <option value="Normal-Slip">Normal</option>
               <option value="night">Normal Night</option>
               <option value="special">Special</option>
               <option value="slip">Slip Payment</option>
             </select>
           </div>
 
-          {/* Status */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-600">
+            <label className="block text-xs sm:text-sm font-medium mb-1 text-gray-600">
               Status
             </label>
-            <select className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-              <option value="all">All</option>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full border rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors duration-200"
+            >
+              <option value="all">All Status</option>
               <option value="canceled">CANCELLED</option>
               <option value="complete">COMPLETE</option>
               <option value="no-balance">NO-BALANCE</option>
@@ -111,74 +224,63 @@ function Dashboard() {
             </select>
           </div>
 
-          {/* Start Date */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
+            <label className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
               Start Date
             </label>
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}
-              placeholderText="DD/MM/YYYY"
               dateFormat="dd/MM/yyyy"
               isClearable
               showPopperArrow={false}
               maxDate={new Date()}
-              className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 w-full"
+              className="border rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 w-full text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              placeholderText="Start date"
             />
           </div>
 
-          {/* End Date */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
+            <label className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
               End Date
             </label>
             <DatePicker
               selected={endDate}
               onChange={(date) => setEndDate(date)}
-              placeholderText="DD/MM/YYYY"
               dateFormat="dd/MM/yyyy"
               isClearable
               showPopperArrow={false}
               minDate={startDate}
               maxDate={new Date()}
-              className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full"
+              className="border rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 w-full text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              placeholderText="End date"
             />
           </div>
 
-          {/* Button */}
-          <div className="lg:col-span-2">
-            <button className="w-full bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 font-medium">
+          <div className="lg:col-span-1">
+            <button className="w-full bg-indigo-500 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-indigo-700 font-medium transition-colors duration-200 shadow-sm text-xs sm:text-sm">
               Apply Filter
             </button>
           </div>
         </div>
       </div>
 
-      {/* Table */}
+      {/* Results Summary */}
+      <div className="mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
+        Showing {filteredData.length} of {tableData.length} records
+      </div>
+
+      {/* Table Section - সব ডিভাইসে full table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-center border border-gray-300">
-            <thead className="bg-neutral-800 text-white uppercase">
+          <table className="min-w-full text-xs sm:text-sm text-center border border-gray-300">
+            <thead className="bg-neutral-500 text-white uppercase">
               <tr>
-                {[
-                  "S/L",
-                  "ID",
-                  "Slip_Type",
-                  "Date_Time",
-                  "Slip Status",
-                  "City",
-                  "T.Country",
-                  "First Name",
-                  "Last Name",
-                  "DOB",
-                  "Passport",
-                  "Center",
-                  "Allocate Center",
-                  "Remarks",
-                  "Action",
-                ].map((head) => (
-                  <th key={head} className="px-4 py-2 border border-gray-300">
+                {tableHeaders.map((head) => (
+                  <th
+                    key={head}
+                    className="px-2 py-1.5 sm:px-4 sm:py-3 border border-gray-300 font-semibold whitespace-nowrap"
+                  >
                     {head}
                   </th>
                 ))}
@@ -186,32 +288,141 @@ function Dashboard() {
             </thead>
 
             <tbody>
-              {tableData.length > 0 ? (
-                tableData.map((row, index) => (
-                  <tr key={index} className="hover:bg-gray-100 ">
-                    <td className="border px-4 py-2">{row.serial}</td>
-                    <td className="border px-4 py-2">{row.id}</td>
-                    <td className="border px-4 py-2">{row.slipType}</td>
-                    <td className="border px-4 py-2 ">{row.dateTime}</td>
-                    <td className="border px-4 py-2 bg-green-600 text-white ">{row.slipStatus}</td>
-                    <td className="border px-4 py-2">{row.city}</td>
-                    <td className="border px-4 py-2">{row.travelingCountry}</td>
-                    <td className="border px-4 py-2">{row.firstName}</td>
-                    <td className="border px-4 py-2">{row.lastName}</td>
-                    <td className="border px-4 py-2">{row.dob}</td>
-                    <td className="border px-4 py-2">{row.passport}</td>
-                    <td className="border px-4 py-2">{row.center}</td>
-                    <td className="border px-4 py-2">{row.allocateCenter}</td>
-                    <td className="border px-4 py-2">{row.remarks}</td>
-                    <td className="border px-4 py-2 text-blue-600 font-medium">
-                      {row.action}
+              {filteredData.length > 0 ? (
+                filteredData.map((row, index) => (
+                  <tr
+                    key={row._id}
+                    className="hover:bg-gray-50 transition-colors duration-150"
+                  >
+                    {/* Serial Number */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {index + 1}
+                    </td>
+
+                    {/* ID */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3 font-mono text-xs">
+                      {typeof row.user === "string"
+                        ? row.user?.slice(0, 6)
+                        : row.user?._id?.slice(0, 6)}
+                    </td>
+
+                    {/* Slip Type */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {row.slipType}
+                    </td>
+
+                    {/* Date Time */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3 whitespace-nowrap">
+                      {formatDate(row.createdAt)}
+                    </td>
+
+                    {/* Status */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      <span
+                        className={`inline-block px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs rounded text-white font-semibold ${getStatusColor(row.status)}`}
+                      >
+                        {getStatusText(row.status)}
+                      </span>
+                    </td>
+
+                    {/* City */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {row.city}
+                    </td>
+
+                    {/* Travel Country */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {row.travelCountry}
+                    </td>
+
+                    {/* First Name */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {row.firstName}
+                    </td>
+
+                    {/* Last Name */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {row.lastName}
+                    </td>
+
+                    {/* Date of Birth */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {row.dateOfBirth}
+                    </td>
+
+                    {/* Passport */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3 font-mono">
+                      {row.passportNumber}
+                    </td>
+
+                    {/* Center */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      {row.medicalCenter}
+                    </td>
+
+                    {/* Allocate Center */}
+                    <td className="border px-2 py-1.5 sm:px-2 sm:py-3">
+                      {row.paymentLink ? (
+                        <a
+                          href={row.paymentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline text-xs"
+                        >
+                          Payment Slip
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+
+                    {/* Remarks */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3 max-w-xs truncate">
+                      {row.remarks || "-"}
+                    </td>
+
+                    {/* Action */}
+                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
+                      <div className="flex justify-center space-x-1 sm:space-x-2">
+                        <Link
+                          to={`/slips/edit/${row._id}`}
+                          className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 text-xs sm:text-sm"
+                        >
+                          Edit
+                        </Link>
+                        <span className="text-gray-400">|</span>
+                        <button
+                          onClick={() => handleDelete(row._id)}
+                          className="text-red-600 hover:text-red-800 font-medium transition-colors duration-200 text-xs sm:text-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="15" className="py-6 text-center text-gray-500">
-                    No data found
+                  <td
+                    colSpan={tableHeaders.length}
+                    className="py-6 sm:py-8 text-center text-gray-500 text-xs sm:text-sm"
+                  >
+                    <div className="flex flex-col items-center">
+                      <svg
+                        className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      No data found matching your criteria
+                    </div>
                   </td>
                 </tr>
               )}
@@ -219,6 +430,21 @@ function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {filteredData.length > 0 && (
+        <div className="mt-3 sm:mt-4 flex justify-between items-center">
+          <div className="text-xs sm:text-sm text-gray-600">Page 1 of 1</div>
+          <div className="flex space-x-1 sm:space-x-2">
+            <button className="px-2 py-0.5 sm:px-3 sm:py-1 border rounded hover:bg-gray-50 text-xs sm:text-sm">
+              Previous
+            </button>
+            <button className="px-2 py-0.5 sm:px-3 sm:py-1 border rounded hover:bg-gray-50 text-xs sm:text-sm">
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
