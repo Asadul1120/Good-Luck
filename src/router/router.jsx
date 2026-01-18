@@ -50,7 +50,6 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      ,
       {
         path: "/profile",
         element: (
@@ -157,7 +156,6 @@ const router = createBrowserRouter([
         element: <SlipView />,
       },
       {
-
         path: "/login",
         element: <Login />,
       },
