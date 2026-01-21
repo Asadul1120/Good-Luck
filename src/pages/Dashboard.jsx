@@ -3,10 +3,12 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "../src/api/axios";
+import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
+  const { user } = useAuth();
+  const userId = user?._id;
   const today = new Date();
-
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);
   const [tableData, setTableData] = useState([]);
@@ -30,11 +32,13 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
+    if (!userId) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/slips");
-        setTableData(response.data);
+        const response = await axios.get(`slips/user/${userId}`);
+        setTableData(response.data.data);
         setError(null);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -43,8 +47,9 @@ function Dashboard() {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, []);
+  }, [userId]);
 
   const filteredData = useMemo(() => {
     return tableData.filter((row) => {

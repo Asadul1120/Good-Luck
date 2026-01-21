@@ -23,6 +23,7 @@ import AdminDashboard from "../pages/AdminPages/AdminDashboard";
 import SlipView from "../components/SlipView";
 import AdminDeposits from "../pages/AdminPages/AdminDeposits";
 import SlipUpdate from "../pages/SlipUpdate";
+import AddMedicalCenter from "../pages/AdminPages/AddmedicalCenter";
 
 const router = createBrowserRouter([
   {
@@ -149,6 +150,15 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AdminDashboard />
+          </AdminRoute>
+        ),
+      },
+
+      {
+        path: "/addMedicalCenter",
+        element: (
+          <AdminRoute>
+            <AddMedicalCenter />
           </AdminRoute>
         ),
       },

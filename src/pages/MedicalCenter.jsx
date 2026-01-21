@@ -1,32 +1,24 @@
-// import React, { useMemo, useState } from "react";
+// import React, { useMemo, useState, useEffect } from "react";
+// import axios from "../src/api/axios";
 
 // /* 🔹 Mock Data (replace with API later) */
+
 // const medicalCenters = [
 //   {
-//     id: 1,
+//     id: "1ew65a4",
 //     name: "Al Noor Medical Center",
 //     country: "Bangladesh",
 //     city: "Dhaka",
-//     address1: "House 12, Road 5",
-//     address2: "Dhanmondi",
-//     phone: "+880123456789",
-//     email: "info@alnoor.com",
-//     website: "https://alnoor.com",
-//     rating: 4.5,
-//     time: "9AM - 10PM",
+//     price: "1000",
+//     Quota: "5",
 //   },
 //   {
-//     id: 2,
+//     id: "1ew65a5",
 //     name: "Care Plus Hospital",
 //     country: "India",
 //     city: "Delhi",
-//     address1: "Sector 21",
-//     address2: "Near Metro",
-//     phone: "+911234567890",
-//     email: "contact@careplus.in",
-//     website: "https://careplus.in",
-//     rating: 4.2,
-//     time: "24 Hours",
+//     price: "1000",
+//     Quota: "5",
 //   },
 // ];
 
@@ -48,10 +40,24 @@
 //   Nepal: ["Kathmandu", "Biratnagar", "Pokhara", "Butwal", "Jhapa"],
 // };
 
+// const tableHeaders = ["S.L", "Name", "Country", "City", "Price", "Quota"];
+
 // const MedicalCenter = () => {
 //   const [country, setCountry] = useState("");
 //   const [city, setCity] = useState("");
 //   const [centerName, setCenterName] = useState("");
+//   const [medicalCenters, setMedicalCenters] = useState([]);
+
+//   useEffect(() => {
+//     try {
+//       axios
+//         .get("/medicalCenters")
+//         .then((res) => setMedicalCenters(res.data.centers))
+//         .catch((err) => console.log(err));
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }, []);
 
 //   /* 🔹 Cities based on selected country */
 //   const cities = useMemo(() => {
@@ -65,7 +71,7 @@
 //         (!country || center.country === country) &&
 //         (!city || center.city === city) &&
 //         (!centerName ||
-//           center.name.toLowerCase().includes(centerName.toLowerCase()))
+//           center.name?.toLowerCase().includes(centerName.toLowerCase()))
 //       );
 //     });
 //   }, [country, city, centerName]);
@@ -103,7 +109,9 @@
 //               >
 //                 <option value="">Select Country</option>
 //                 {Object.keys(countryCityMap).map((c) => (
-//                   <option key={c}>{c}</option>
+//                   <option key={c} value={c}>
+//                     {c}
+//                   </option>
 //                 ))}
 //               </select>
 //             </div>
@@ -119,7 +127,9 @@
 //               >
 //                 <option value="">Select City</option>
 //                 {cities.map((c) => (
-//                   <option key={c}>{c}</option>
+//                   <option key={c} value={c}>
+//                     {c}
+//                   </option>
 //                 ))}
 //               </select>
 //             </div>
@@ -138,11 +148,11 @@
 //               />
 //             </div>
 
-//             {/* Buttons */}
-//             <div className="flex gap-3 items-end">
+//             {/* Reset */}
+//             <div className="flex items-end">
 //               <button
 //                 onClick={handleReset}
-//                 className="w-full border px-4 py-2 rounded-md"
+//                 className="w-full border px-4 py-2 rounded-md hover:bg-gray-100"
 //               >
 //                 Reset
 //               </button>
@@ -155,18 +165,8 @@
 //           <table className="min-w-full text-sm text-center border">
 //             <thead className="bg-gray-50">
 //               <tr>
-//                 {[
-//                   "Name",
-//                   "Country",
-//                   "City",
-//                   "Address",
-//                   "Phone",
-//                   "Email",
-//                   "Website",
-//                   "Rating",
-//                   "Time",
-//                 ].map((h) => (
-//                   <th key={h} className="border px-3 py-2">
+//                 {tableHeaders.map((h) => (
+//                   <th key={h} className="border px-3 py-2 font-semibold">
 //                     {h}
 //                   </th>
 //                 ))}
@@ -181,23 +181,14 @@
 //                   </td>
 //                 </tr>
 //               ) : (
-//                 filteredCenters.map((c) => (
-//                   <tr key={c.id} className="hover:bg-gray-50">
-//                     <td className="border px-2 py-1">{c.name}</td>
-//                     <td className="border px-2 py-1">{c.country}</td>
-//                     <td className="border px-2 py-1">{c.city}</td>
-//                     <td className="border px-2 py-1">
-//                       {c.address1}, {c.address2}
-//                     </td>
-//                     <td className="border px-2 py-1">{c.phone}</td>
-//                     <td className="border px-2 py-1">{c.email}</td>
-//                     <td className="border px-2 py-1">
-//                       <a href={c.website} className="text-indigo-600 underline">
-//                         Visit
-//                       </a>
-//                     </td>
-//                     <td className="border px-2 py-1">{c.rating}</td>
-//                     <td className="border px-2 py-1">{c.time}</td>
+//                 filteredCenters.map((c, index) => (
+//                   <tr key={index}>
+//                     <td className="border px-3 py-2">{index + 1}</td>
+//                     <td className="border px-3 py-2">{c.name}</td>
+//                     <td className="border px-3 py-2">{c.country}</td>
+//                     <td className="border px-3 py-2">{c.city}</td>
+//                     <td className="border px-3 py-2">{c.price}</td>
+//                     <td className="border px-3 py-2">{c.Quota}</td>
 //                   </tr>
 //                 ))
 //               )}
@@ -211,37 +202,13 @@
 
 // export default MedicalCenter;
 
-import React, { useMemo, useState } from "react";
 
-/* 🔹 Mock Data (replace with API later) */
-const medicalCenters = [
-  {
-    id: 1,
-    name: "Al Noor Medical Center",
-    country: "Bangladesh",
-    city: "Dhaka",
-    address1: "House 12, Road 5",
-    address2: "Dhanmondi",
-    phone: "+880123456789",
-    email: "info@alnoor.com",
-    website: "https://alnoor.com",
-    rating: 4.5,
-    time: "9AM - 10PM",
-  },
-  {
-    id: 2,
-    name: "Care Plus Hospital",
-    country: "India",
-    city: "Delhi",
-    address1: "Sector 21",
-    address2: "Near Metro",
-    phone: "+911234567890",
-    email: "contact@careplus.in",
-    website: "https://careplus.in",
-    rating: 4.2,
-    time: "24 Hours",
-  },
-];
+
+
+
+
+import React, { useMemo, useState, useEffect } from "react";
+import axios from "../src/api/axios";
 
 /* 🔹 Country → City mapping */
 const countryCityMap = {
@@ -267,6 +234,24 @@ const MedicalCenter = () => {
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [centerName, setCenterName] = useState("");
+  const [medicalCenters, setMedicalCenters] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  /* 🔹 Fetch from API */
+  useEffect(() => {
+    const fetchCenters = async () => {
+      try {
+        const res = await axios.get("/medicalCenters");
+        setMedicalCenters(res.data.centers || []);
+      } catch (error) {
+        console.error("Failed to load medical centers", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCenters();
+  }, []);
 
   /* 🔹 Cities based on selected country */
   const cities = useMemo(() => {
@@ -283,7 +268,7 @@ const MedicalCenter = () => {
           center.name?.toLowerCase().includes(centerName.toLowerCase()))
       );
     });
-  }, [country, city, centerName]);
+  }, [country, city, centerName, medicalCenters]);
 
   const handleReset = () => {
     setCountry("");
@@ -383,43 +368,27 @@ const MedicalCenter = () => {
             </thead>
 
             <tbody>
-              {filteredCenters.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan="9" className="py-4 text-gray-500">
+                  <td colSpan="6" className="py-4 text-gray-500">
+                    Loading...
+                  </td>
+                </tr>
+              ) : filteredCenters.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-4 text-gray-500">
                     No medical centers found
                   </td>
                 </tr>
               ) : (
-                filteredCenters.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50">
-                    <td className="border px-2 py-1">{c.name}</td>
-                    <td className="border px-2 py-1">{c.country}</td>
-                    <td className="border px-2 py-1">{c.city}</td>
-                    <td className="border px-2 py-1">
-                      {c.address1}, {c.address2}
-                    </td>
-                    <td className="border px-2 py-1">
-                      <a href={`tel:${c.phone}`} className="text-blue-600">
-                        {c.phone}
-                      </a>
-                    </td>
-                    <td className="border px-2 py-1">
-                      <a href={`mailto:${c.email}`} className="text-blue-600">
-                        {c.email}
-                      </a>
-                    </td>
-                    <td className="border px-2 py-1">
-                      <a
-                        href={c.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-600 underline"
-                      >
-                        Visit
-                      </a>
-                    </td>
-                    <td className="border px-2 py-1">⭐ {c.rating}</td>
-                    <td className="border px-2 py-1">{c.time}</td>
+                filteredCenters.map((c, index) => (
+                  <tr key={c._id}>
+                    <td className="border px-3 py-2">{index + 1}</td>
+                    <td className="border px-3 py-2">{c.name}</td>
+                    <td className="border px-3 py-2">{c.country}</td>
+                    <td className="border px-3 py-2">{c.city}</td>
+                    <td className="border px-3 py-2">{c.price}</td>
+                    <td className="border px-3 py-2">{c.quota}</td>
                   </tr>
                 ))
               )}
