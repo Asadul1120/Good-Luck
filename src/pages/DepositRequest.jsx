@@ -26,14 +26,17 @@ const DepositRequest = () => {
     Nagad: {
       label: "Nagad personal",
       account: "01951337553",
+      text: "নগদে পেমন্ট করলে অবশ্যই হাজারে 10 টাকা করে খরচ প্রদান করতে হবে।",
     },
     Bkash: {
       label: "Bkash personal",
       account: "01951337553",
+      text: "বিকাশে পেমন্ট করলে অবশ্যই হাজারে 10 টাকা করে খরচ প্রদান করতে হবে।",
     },
     "Bkash Payment": {
       label: "Bkash Payment",
       account: "01634846064",
+      text: "বিকাশে পেমন্ট করলে অবশ্যই হাজারে 10 টাকা করে খরচ প্রদান করতে হবে।",
     },
   };
 
@@ -111,7 +114,7 @@ const DepositRequest = () => {
       console.error(error);
       alert(
         error?.response?.data?.message ||
-          "Something went wrong. Please try again."
+          "Something went wrong. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -166,7 +169,7 @@ const DepositRequest = () => {
             >
               {[
                 ".....",
-                "SOUTHEAST BANK LIMITED.",
+                "SOUTHEAST BANK LIMITED",
                 "Nagad",
                 "Bkash",
                 "Bkash Payment",
@@ -193,6 +196,15 @@ const DepositRequest = () => {
               </p>
               <p className="text-gray-800">
                 {paymentAccounts[formData.paymentMethod].account}
+              </p>
+              <p className="text-gray-800">
+                {paymentAccounts[formData.paymentMethod].Name}
+              </p>
+              <p className="text-gray-800">
+                {paymentAccounts[formData.paymentMethod].Branch}
+              </p>
+              <p className="text-gray-800">
+                {paymentAccounts[formData.paymentMethod].text}
               </p>
             </div>
           )}
@@ -275,3 +287,13 @@ const DepositRequest = () => {
 };
 
 export default DepositRequest;
+
+
+
+
+
+
+
+
+
+

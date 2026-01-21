@@ -571,14 +571,14 @@ const NightSlip = () => {
                 <button
                   type="button"
                   onClick={() => handleAddYears(5)}
-                  className="px-3 py-1 text-sm bg-cyan-400 hover:bg-gray-300 rounded"
+                  className="px-3 py-1 text-sm bg-cyan-400 hover:bg-cyan-500 rounded"
                 >
                   +5 Years
                 </button>
                 <button
                   type="button"
                   onClick={() => handleAddYears(10)}
-                  className="px-3 py-1 text-sm bg-green-400 hover:bg-gray-300 rounded"
+                  className="px-3 py-1 text-sm bg-green-400 hover:bg-green-500 rounded"
                 >
                   +10 Years
                 </button>

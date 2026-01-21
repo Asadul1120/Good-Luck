@@ -22,6 +22,7 @@ import AdminPanel from "../pages/AdminPages/AdminPanel";
 import AdminDashboard from "../pages/AdminPages/AdminDashboard";
 import SlipView from "../components/SlipView";
 import AdminDeposits from "../pages/AdminPages/AdminDeposits";
+import SlipUpdate from "../pages/SlipUpdate";
 
 const router = createBrowserRouter([
   {
@@ -154,6 +155,10 @@ const router = createBrowserRouter([
       {
         path: "/slip/:id",
         element: <SlipView />,
+      },
+      {
+        path: "/slips/edit/:id",
+        element: <SlipUpdate />,
       },
       {
         path: "/login",

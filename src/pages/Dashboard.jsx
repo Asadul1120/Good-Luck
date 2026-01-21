@@ -12,6 +12,7 @@ function Dashboard() {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [clickCounts, setClickCounts] = useState({});
 
   const [type, setType] = useState("all");
   const [status, setStatus] = useState("all");
@@ -82,7 +83,15 @@ function Dashboard() {
   }, []);
 
   const formatDate = useCallback((dateString) => {
-    return new Date(dateString).toLocaleString("en-IN");
+    return new Date(dateString).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric", // 👈 full year
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
   }, []);
 
   const getStatusColor = useCallback((status) => {
@@ -312,17 +321,62 @@ function Dashboard() {
                     </td>
 
                     {/* Date Time */}
-                    <td className="border px-2 py-1.5 sm:px-4 sm:py-3 whitespace-nowrap">
-                      {formatDate(row.createdAt)}
+                    <td className="border px-3 py-2 sm:px-4 sm:py-3 whitespace-nowrap">
+                      <div className="flex flex-col leading-tight items-center">
+                        <span className="font-medium">
+                          {new Date(row.createdAt).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <span className="text-[11px] text-gray-600">
+                          {new Date(row.createdAt).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </span>
+                      </div>
                     </td>
 
                     {/* Status */}
                     <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
-                      <span
-                        className={`inline-block px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs rounded text-white font-semibold ${getStatusColor(row.status)}`}
-                      >
-                        {getStatusText(row.status)}
-                      </span>
+                      <div className="flex flex-col gap-1 items-center">
+                        <button
+                          onClick={() => {
+                            if (row.status !== "complete") return; // ⛔ do nothing
+
+                            // 🔢 increase click count
+                            setClickCounts((prev) => ({
+                              ...prev,
+                              [row._id]: (prev[row._id] || 0) + 1,
+                            }));
+
+                            // 🔗 open URL
+                            window.open(row.paymentLink, "_blank");
+                          }}
+                          className={`inline-block px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs rounded text-white font-semibold cursor-pointer ${getStatusColor(
+                            row.status,
+                          )}`}
+                        >
+                          {getStatusText(row.status)}
+                        </button>
+
+                        {row.comments && (
+                          <span className="text-[11px] text-gray-600 italic break-words text-center">
+                            {row.comments}
+                          </span>
+                        )}
+
+                        {/* 🔢 Click count (only shows after click) */}
+                        {clickCounts[row._id] > 0 && (
+                          <span className="text-[11px] text-gray-500">
+                            Clicked: {clickCounts[row._id]}
+                            {clickCounts[row._id] > 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* City */}
@@ -353,7 +407,7 @@ function Dashboard() {
                             {
                               day: "2-digit",
                               month: "2-digit",
-                              year: "2-digit",
+                              year: "numeric", // 👈 full year (e.g. 1998)
                             },
                           )
                         : "-"}
@@ -439,21 +493,6 @@ function Dashboard() {
           </table>
         </div>
       </div>
-
-      {/* Pagination */}
-      {filteredData.length > 0 && (
-        <div className="mt-3 sm:mt-4 flex justify-between items-center">
-          <div className="text-xs sm:text-sm text-gray-600">Page 1 of 1</div>
-          <div className="flex space-x-1 sm:space-x-2">
-            <button className="px-2 py-0.5 sm:px-3 sm:py-1 border rounded hover:bg-gray-50 text-xs sm:text-sm">
-              Previous
-            </button>
-            <button className="px-2 py-0.5 sm:px-3 sm:py-1 border rounded hover:bg-gray-50 text-xs sm:text-sm">
-              Next
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

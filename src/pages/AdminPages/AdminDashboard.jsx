@@ -12,6 +12,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentLinks, setPaymentLinks] = useState({});
   const [amounts, setAmounts] = useState({}); // ✅ AMOUNT STATE
+  const [comments, setComments] = useState({}); // ✅ setComments
 
   useEffect(() => {
     fetchData();
@@ -177,10 +178,15 @@ const AdminDashboard = () => {
                 <td className="border px-2 py-1">
                   {item.dateOfBirth
                     ? isValidDate(new Date(item.dateOfBirth))
-                      ? new Date(item.dateOfBirth).toLocaleDateString()
+                      ? new Date(item.dateOfBirth).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric", // 👈 full year
+                        })
                       : item.dateOfBirth
                     : "-"}
                 </td>
+
                 <td className="border px-2 py-1">{item.gender}</td>
                 <td className="border px-2 py-1">{item.maritalStatus}</td>
                 <td className="border px-2 py-1">{item.passportNumber}</td>
@@ -188,7 +194,14 @@ const AdminDashboard = () => {
                 <td className="border px-2 py-1">
                   {item.passportIssueDate
                     ? isValidDate(new Date(item.passportIssueDate))
-                      ? new Date(item.passportIssueDate).toLocaleDateString()
+                      ? new Date(item.passportIssueDate).toLocaleDateString(
+                          "en-GB",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric", // 👈 full year
+                          },
+                        )
                       : item.passportIssueDate
                     : "-"}
                 </td>
@@ -200,7 +213,14 @@ const AdminDashboard = () => {
                 <td className="border px-2 py-1">
                   {item.passportExpiryDate
                     ? isValidDate(new Date(item.passportExpiryDate))
-                      ? new Date(item.passportExpiryDate).toLocaleDateString()
+                      ? new Date(item.passportExpiryDate).toLocaleDateString(
+                          "en-GB",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric", // 👈 full year
+                          },
+                        )
                       : item.passportExpiryDate
                     : "-"}
                 </td>
@@ -219,40 +239,85 @@ const AdminDashboard = () => {
                 </td>
 
                 {/* STATUS */}
-                <td className="border px-2 py-1">
-                  <select
-                    value={item.status}
-                    disabled={item.status === "complete"}
-                    onChange={(e) =>
-                      handleStatusChange(item._id, e.target.value)
-                    }
-                    className={`px-2 py-1 text-xs rounded font-semibold border
-                      ${getStatusClass(item.status)}
-                      ${
-                        item.status === "complete"
-                          ? "cursor-not-allowed opacity-70"
-                          : ""
-                      }`}
-                  >
-                    {[
-                      { value: "no-balance", label: "NO-BALANCE" },
-                      { value: "no-queue", label: "NO-QUEUE" },
-                      { value: "processing", label: "[PROCESSING]" },
-                      { value: "processing-link", label: "[PROCESSING-LINK]" },
+                <td className="border px-2 py-2">
+                  <div className="flex flex-col gap-1">
+                    <select
+                      value={item.status}
+                      disabled={item.status === "complete"}
+                      onChange={(e) =>
+                        handleStatusChange(item._id, e.target.value)
+                      }
+                      className={`w-full px-2 py-1.5 text-xs rounded-md font-semibold border focus:outline-none
+        ${getStatusClass(item.status)}
+        ${
+          item.status === "complete"
+            ? "cursor-not-allowed opacity-70"
+            : "hover:brightness-110"
+        }`}
+                    >
+                      {[
+                        { value: "no-balance", label: "NO-BALANCE" },
+                        { value: "no-queue", label: "NO-QUEUE" },
+                        { value: "processing", label: "[PROCESSING]" },
+                        {
+                          value: "processing-link",
+                          label: "[PROCESSING-LINK]",
+                        },
 
-                      // ✅ ONLY show COMPLETE if paymentLink exists
-                      ...(item.paymentLink
-                        ? [{ value: "complete", label: "COMPLETE" }]
-                        : []),
+                        ...(item.paymentLink
+                          ? [{ value: "complete", label: "COMPLETE" }]
+                          : []),
 
-                      { value: "cancelled", label: "CANCELLED" },
-                      { value: "other", label: "OTHER COMMENT ANY ISSUE" },
-                    ].map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                        { value: "cancelled", label: "CANCELLED" },
+                        { value: "other", label: "OTHER COMMENT ANY ISSUE" },
+                      ].map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    {item.status === "other" && (
+                      <div className="flex gap-1">
+                        <input
+                          type="text"
+                          placeholder="Enter comment"
+                          value={comments[item._id] || ""}
+                          onChange={(e) =>
+                            setComments((prev) => ({
+                              ...prev,
+                              [item._id]: e.target.value,
+                            }))
+                          }
+                          className="flex-1 px-2 py-1 text-xs border rounded-md focus:ring-1 focus:ring-indigo-500 outline-none"
+                        />
+                        <button
+                          onClick={async () => {
+                            try {
+                              await axios.patch(`/slips/${item._id}/comment`, {
+                                comment: comments[item._id],
+                              });
+
+                              setData((prev) =>
+                                prev.map((s) =>
+                                  s._id === item._id
+                                    ? { ...s, comments: comments[item._id] }
+                                    : s,
+                                ),
+                              );
+
+                              alert("Comment saved ✅");
+                            } catch (err) {
+                              alert("Failed to save comment ❌");
+                            }
+                          }}
+                          className="px-3 py-1 text-xs font-semibold bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition"
+                        >
+                          Send
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </td>
 
                 <td className="border px-2 py-1">{item.remarks || "-"}</td>
