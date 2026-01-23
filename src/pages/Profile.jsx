@@ -24,7 +24,7 @@ const Profile = () => {
     fetchUserData();
   }, []);
 
-  console.log(profileData);
+  
 
   // ================= FILE CHANGE =================
   const handleFileChange = (e) => {

@@ -60,7 +60,7 @@ const SpecialSlip = () => {
     fetchCenters();
   }, []);
 
-  console.log(medicalCenters);
+
 
   // Passport confirmation validation
   useEffect(() => {

@@ -369,8 +369,11 @@ function Dashboard() {
                         </button>
 
                         {row.comments && (
-                          <span className="text-[11px] text-gray-600 italic break-words text-center">
-                            {row.comments}
+                          <span className="relative group text-[11px]  text-gray-600">
+                            {row.comments.slice(0, 10)}...
+                            <span className="absolute hidden group-hover:block bg-gray-200 text-red-500  top-0 left-12 p-2 rounded text-xs ">
+                              {row.comments}
+                            </span>
                           </span>
                         )}
 
@@ -430,7 +433,8 @@ function Dashboard() {
 
                     {/* Allocate Center */}
                     <td className="border px-2 py-1.5 sm:px-2 sm:py-3">
-                      {row.slipType === "Night-Slip" || row.slipType === "Normal-Slip"
+                      {row.slipType === "Night-Slip" ||
+                      row.slipType === "Normal-Slip"
                         ? "None"
                         : row.medicalCenter}
                     </td>

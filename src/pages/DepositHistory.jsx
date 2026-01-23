@@ -89,8 +89,8 @@ const DepositHistory = () => {
             <DatePicker
               selected={startDate}
               onChange={setStartDate}
-              dateFormat="dd/MM/yy"
-              placeholderText="DD/MM/YY"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
               maxDate={new Date()}
               className="border rounded-md px-3 py-2 w-full"
             />
@@ -101,8 +101,8 @@ const DepositHistory = () => {
             <DatePicker
               selected={endDate}
               onChange={setEndDate}
-              dateFormat="dd/MM/yy"
-              placeholderText="DD/MM/YY"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
               minDate={startDate}
               maxDate={new Date()}
               className="border rounded-md px-3 py-2 w-full"
@@ -145,7 +145,7 @@ const DepositHistory = () => {
                 "Username",
                 "Amount",
                 "Status",
-                "Remarks By User",
+                "Remarks By Admin",
                 "Remarks By User",
                 "Deposit Slip",
                 "Payment Submitted Date",
@@ -175,7 +175,9 @@ const DepositHistory = () => {
               filteredData.map((row, index) => (
                 <tr key={row.id} className="hover:bg-gray-50">
                   <td className="border px-3 py-2">{index + 1}</td>
-                  <td className="border px-3 py-2">{row.id}</td>
+                  <td className="border px-3 py-2 uppercase">
+                    {row.id.slice(0, 6)}
+                  </td>
                   <td className="border px-3 py-2">
                     {row.username}{" "}
                     <span className="text-xs text-gray-500">
