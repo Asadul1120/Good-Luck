@@ -1,104 +1,120 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
-const tableData = [
-  {
-    serial: 1,
-    id: "123456",
-    username: "rabbi839",
-    accountType: "PREPAID",
-    amount: "-94,000.00",
-    status: "Approved",
-    adminRemarks: "None",
-    userRemarks: "BILL",
-    paymentDate: "Nov 16, 2025, 6:00 PM",
-    requestDate: "Nov 16, 2025, 6:20 PM",
-  },
-  {
-    serial: 2,
-    id: "123457",
-    username: "rabbi839",
-    accountType: "PREPAID",
-    amount: "-94,000.00",
-    status: "Approved",
-    adminRemarks: "Automatic Approved",
-    userRemarks: "BILL 011",
-    paymentDate: "Nov 16, 2025, 6:00 PM",
-    requestDate: "Nov 16, 2025, 6:20 PM",
-  },
-  {
-    serial: 3,
-    id: "123458",
-    username: "rabbi839",
-    accountType: "PREPAID",
-    amount: "-94,000.00",
-    status: "Approved",
-    adminRemarks: "Automatic Approved",
-    userRemarks: "BILL",
-    paymentDate: "Nov 16, 2025, 6:00 PM",
-    requestDate: "Nov 16, 2025, 6:20 PM",
-  },
-];
+import axios from "../src/api/axios";
+import { useAuth } from "../context/AuthContext";
 
 const DepositHistory = () => {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const { user } = useAuth();
+  const userId = user?._id;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
   const [status, setStatus] = useState("all");
+
+  const [tableData, setTableData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeSlip, setActiveSlip] = useState(null);
+
+  // ================= FETCH DATA =================
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`/deposits/user/${userId}`);
+        setTableData(res.data.data || []);
+        setFilteredData(res.data.data || []);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
+  // ================= APPLY FILTER =================
+  const applyFilter = () => {
+    const start = startDate ? new Date(startDate.setHours(0, 0, 0, 0)) : null;
+
+    const end = endDate ? new Date(endDate.setHours(23, 59, 59, 999)) : null;
+
+    const result = tableData.filter((row) => {
+      // status
+      if (status !== "all" && row.statusRaw !== status) return false;
+
+      const createdAt = new Date(row.createdAt);
+
+      if (start && createdAt < start) return false;
+      if (end && createdAt > end) return false;
+
+      return true;
+    });
+
+    setFilteredData(result);
+  };
+
+  // ================= MODAL =================
+  const openModal = (slipUrl) => {
+    setActiveSlip(slipUrl);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setActiveSlip(null);
+  };
 
   return (
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-indigo-500">
-       🕒 Deposit Request History
+        🕒 Deposit Request History
       </h1>
 
-      {/* Filters */}
+      {/* ================= FILTERS ================= */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-          {/* Start Date */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
-              Start Date
-            </label>
+          <div>
+            <label className="text-sm font-medium">Start Date</label>
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              placeholderText="DD/MM/YYYY"
-              dateFormat="dd/MM/yyyy"
-              isClearable
-              showPopperArrow={false}
+              onChange={setStartDate}
+              dateFormat="dd/MM/yy"
+              placeholderText="DD/MM/YY"
               maxDate={new Date()}
-              className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 w-full"
+              className="border rounded-md px-3 py-2 w-full"
             />
           </div>
 
-          {/* End Date */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
-              End Date
-            </label>
+          <div>
+            <label className="text-sm font-medium">End Date</label>
             <DatePicker
               selected={endDate}
-              onChange={(date) => setEndDate(date)}
-              placeholderText="DD/MM/YYYY"
-              dateFormat="dd/MM/yyyy"
-              isClearable
-              showPopperArrow={false}
+              onChange={setEndDate}
+              dateFormat="dd/MM/yy"
+              placeholderText="DD/MM/YY"
               minDate={startDate}
               maxDate={new Date()}
-              className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full"
+              className="border rounded-md px-3 py-2 w-full"
             />
           </div>
 
-          {/* Status */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
-              Status
-            </label>
+          <div>
+            <label className="text-sm font-medium">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+              className="border rounded-md px-3 py-2 w-full"
             >
               <option value="all">All</option>
               <option value="pending">Pending</option>
@@ -107,84 +123,129 @@ const DepositHistory = () => {
             </select>
           </div>
 
-          {/* Button */}
           <div className="lg:col-span-2">
-            <button className="w-full bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 font-medium">
+            <button
+              onClick={applyFilter}
+              className="w-full bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600"
+            >
               Apply Filter
             </button>
           </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-center border border-gray-300">
-            <thead className="bg-neutral-700 text-white">
-              <tr>
-                {[
-                  "Serial",
-                  "ID",
-                  "Username",
-                  "Amount",
-                  "Status",
-                  "Remarks By Admin",
-                  "Remarks By User",
-                  "Deposit Slip",
-                  "Payment Submitted Date",
-                  "Deposit Request Date",
-                ].map((head) => (
-                  <th key={head} className="px-4 py-2 border border-gray-300">
-                    {head}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+      {/* ================= TABLE ================= */}
+      <div className="bg-white shadow overflow-x-auto">
+        <table className="min-w-full text-sm text-center border border-gray-300">
+          <thead className="bg-neutral-700 text-white">
+            <tr>
+              {[
+                "Serial",
+                "ID",
+                "Username",
+                "Amount",
+                "Status",
+                "Remarks By User",
+                "Remarks By User",
+                "Deposit Slip",
+                "Payment Submitted Date",
+                "Deposit request Date",
+              ].map((h) => (
+                <th key={h} className="border px-3 uppercase py-2">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-            <tbody>
-              {tableData.map((row) => (
-                <tr key={row.serial} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-3">
-                    {row.serial}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-3">{row.id}</td>
-                  <td className="border border-gray-300 px-4 py-3">
-                    {row.username}
-                    <span className="text-xs text-gray-500 ml-1">
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="10" className="py-6">
+                  Loading...
+                </td>
+              </tr>
+            ) : filteredData.length === 0 ? (
+              <tr>
+                <td colSpan="10" className="py-6">
+                  No records found
+                </td>
+              </tr>
+            ) : (
+              filteredData.map((row, index) => (
+                <tr key={row.id} className="hover:bg-gray-50">
+                  <td className="border px-3 py-2">{index + 1}</td>
+                  <td className="border px-3 py-2">{row.id}</td>
+                  <td className="border px-3 py-2">
+                    {row.username}{" "}
+                    <span className="text-xs text-gray-500">
                       ({row.accountType})
                     </span>
                   </td>
-                  <td className="border border-gray-300 px-4 py-3 text-red-600 font-semibold">
+                  <td className="border px-3 py-2 text-red-600 font-semibold">
                     {row.amount}
                   </td>
-                  <td className="border border-gray-300 px-4 py-3">
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                  <td className="border px-3 py-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        row.status === "Approved"
+                          ? "bg-green-100 text-green-700"
+                          : row.status === "Rejected"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
                       {row.status}
                     </span>
                   </td>
-                  <td className="border border-gray-300 px-4 py-3">
-                    {row.adminRemarks}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-3">
-                    {row.userRemarks}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-3">
-                    <button className="text-blue-600 hover:underline font-medium">
+                  <td className="border px-3 py-2">{row.adminRemarks}</td>
+                  <td className="border px-3 py-2">{row.userRemarks}</td>
+                  <td className="border px-3 py-2">
+                    <button
+                      onClick={() => openModal(row.depositSlip)}
+                      className="text-blue-600 hover:underline"
+                    >
                       View
                     </button>
                   </td>
-                  <td className="border border-gray-300 px-4 py-3 whitespace-nowrap">
+                  <td className="border px-3 py-2 whitespace-nowrap">
                     {row.paymentDate}
                   </td>
-                  <td className="border border-gray-300 px-4 py-3 whitespace-nowrap">
+                  <td className="border px-3 py-2 whitespace-nowrap">
                     {row.requestDate}
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
+
+      {/* ================= MODAL ================= */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white p-4 rounded-lg max-w-lg w-full relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-3 text-xl font-bold"
+            >
+              ×
+            </button>
+            <h2 className="text-center font-semibold mb-3">Deposit Slip</h2>
+            <img
+              src={activeSlip}
+              alt="Deposit Slip"
+              className="w-full rounded border"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

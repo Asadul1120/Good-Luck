@@ -430,18 +430,9 @@ function Dashboard() {
 
                     {/* Allocate Center */}
                     <td className="border px-2 py-1.5 sm:px-2 sm:py-3">
-                      {row.paymentLink ? (
-                        <a
-                          href={row.paymentLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline text-xs"
-                        >
-                          Payment Slip
-                        </a>
-                      ) : (
-                        "-"
-                      )}
+                      {row.slipType === "Night-Slip" || row.slipType === "Normal-Slip"
+                        ? "None"
+                        : row.medicalCenter}
                     </td>
 
                     {/* Remarks */}

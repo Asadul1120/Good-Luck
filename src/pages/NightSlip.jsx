@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -36,6 +34,22 @@ const NightSlip = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passportMatchError, setPassportMatchError] = useState("");
+
+  // Date conversion helpers
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split("-");
+    return new Date(year, month - 1, day);
+  };
+
+  const formatDateForBackend = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   // Passport confirmation validation
   useEffect(() => {
@@ -215,7 +229,7 @@ const NightSlip = () => {
 
       await axios.post("/slips", payload);
 
-      alert("Normal Slip submitted successfully ✅");
+      alert("Night Slip submitted successfully ✅");
     } catch (error) {
       alert(error.response?.data?.message || "Failed to submit form");
     } finally {
@@ -259,7 +273,7 @@ const NightSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Select your Country", "India", "Bangladesh"].map((item) => (
+                {["Bangladesh"].map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -369,15 +383,26 @@ const NightSlip = () => {
               <label className="block font-medium text-gray-700 mb-1">
                 Date of Birth *
               </label>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
+              <DatePicker
+                selected={formatDateForInput(formData.dob)}
+                onChange={(date) => {
+                  const formattedDate = formatDateForBackend(date);
+                  handleChange({
+                    target: { name: "dob", value: formattedDate },
+                  });
+                }}
+                dateFormat="dd/MM/yyyy"
                 className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
                   errors.dob ? "border-red-500" : ""
                 }`}
+                wrapperClassName="w-full"
+                placeholderText="DD/MM/YYYY"
+                showYearDropdown
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
+                maxDate={new Date()}
               />
+
               {errors.dob && (
                 <p className="text-red-500 text-sm mt-1">{errors.dob}</p>
               )}
@@ -525,22 +550,28 @@ const NightSlip = () => {
               <label className="block font-medium text-gray-700 mb-1">
                 Passport Issue Date *
               </label>
-              <input
-                type="date"
-                name="passportIssueDate"
-                value={formData.passportIssueDate}
-                onChange={handleChange}
+              <DatePicker
+                selected={formatDateForInput(formData.passportIssueDate)}
+                onChange={(date) => {
+                  const formattedDate = formatDateForBackend(date);
+                  handleChange({
+                    target: {
+                      name: "passportIssueDate",
+                      value: formattedDate,
+                    },
+                  });
+                }}
+                dateFormat="dd/MM/yyyy"
                 className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
                   errors.passportIssueDate ? "border-red-500" : ""
                 }`}
+                wrapperClassName="w-full"
+                placeholderText="DD/MM/YYYY"
+                showYearDropdown
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
               />
-              {/* <DatePicker
-                selected={formData.passportIssueDate}
-                onChange={(date) => setFormData({ ...formData, passportIssueDate: date })}
-                className={`border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full ${
-                  errors.passportIssueDate ? "border-red-500" : ""
-                }`}
-              /> */}
+
               {errors.passportIssueDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.passportIssueDate}
@@ -551,22 +582,29 @@ const NightSlip = () => {
               <label className="block font-medium text-gray-700 mb-1">
                 Passport Expiry Date *
               </label>
-              <input
-                type="date"
-                name="passportExpiryDate"
-                value={formData.passportExpiryDate}
-                onChange={handleChange}
+              <DatePicker
+                selected={formatDateForInput(formData.passportExpiryDate)}
+                onChange={(date) => {
+                  const formattedDate = formatDateForBackend(date);
+                  handleChange({
+                    target: {
+                      name: "passportExpiryDate",
+                      value: formattedDate,
+                    },
+                  });
+                }}
+                dateFormat="dd/MM/yyyy"
                 className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
                   errors.passportExpiryDate ? "border-red-500" : ""
                 }`}
+                wrapperClassName="w-full"
+                placeholderText="DD/MM/YYYY"
+                showYearDropdown
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
+                minDate={formatDateForInput(formData.passportIssueDate)}
               />
-              {/* <DatePicker
-                selected={formData.passportExpiryDate}
-                onChange={(date) => setFormData({ ...formData, passportExpiryDate: date })}
-                className={`border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full ${
-                  errors.passportExpiryDate ? "border-red-500" : ""
-                }`}
-              /> */}
+
               <div className="flex gap-2 mt-2">
                 <button
                   type="button"
@@ -578,7 +616,7 @@ const NightSlip = () => {
                 <button
                   type="button"
                   onClick={() => handleAddYears(10)}
-                  className="px-3 py-1 text-sm bg-green-400 hover:bg-green-500 rounded"
+                  className="px-3 py-1 text-sm bg-green-400 hover:bg-green-500  rounded"
                 >
                   +10 Years
                 </button>

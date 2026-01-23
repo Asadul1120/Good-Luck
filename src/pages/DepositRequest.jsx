@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "../src/api/axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const DepositRequest = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +16,21 @@ const DepositRequest = () => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split("-");
+    return new Date(year, month - 1, day);
+  };
+
+  const formatDateForBackend = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   // Payment method wise account info
   const paymentAccounts = {
@@ -231,23 +248,48 @@ const DepositRequest = () => {
 
           {/* Date & Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="date"
-              name="depositDate"
-              value={formData.depositDate}
-              onChange={handleChange}
-              className={`border rounded-lg p-2 ${
+            <DatePicker
+              selected={formatDateForInput(formData.depositDate)}
+              onChange={(date) => {
+                const formattedDate = formatDateForBackend(date);
+                handleChange({
+                  target: { name: "depositDate", value: formattedDate },
+                });
+              }}
+              dateFormat="dd/MM/yyyy"
+              className={`w-full border rounded-lg p-2 ${
                 errors.depositDate ? "border-red-500" : ""
               }`}
+              wrapperClassName="w-full"
+              placeholderText="DD/MM/YYYY"
             />
-            <input
-              type="time"
-              name="depositTime"
-              value={formData.depositTime}
-              onChange={handleChange}
-              className={`border rounded-lg p-2 ${
+
+            <DatePicker
+              selected={
+                formData.depositTime
+                  ? new Date(`1970-01-01T${formData.depositTime}`)
+                  : null
+              }
+              onChange={(date) => {
+                const hours = String(date.getHours()).padStart(2, "0"); // 24-hour
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+                handleChange({
+                  target: {
+                    name: "depositTime",
+                    value: `${hours}:${minutes}`,
+                  },
+                });
+              }}
+              showTimeSelect
+              showTimeSelectOnly
+              timeIntervals={5}
+              timeCaption="Time"
+              dateFormat="hh:mm aa"
+              className={`w-full border rounded-lg p-2 ${
                 errors.depositTime ? "border-red-500" : ""
               }`}
+              wrapperClassName="w-full"
+              placeholderText="HH:MM AM/PM"
             />
           </div>
 
@@ -287,13 +329,3 @@ const DepositRequest = () => {
 };
 
 export default DepositRequest;
-
-
-
-
-
-
-
-
-
-

@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "../src/api/axios";
 import { useAuth } from "../context/AuthContext";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 const SpecialSlip = () => {
   const { user } = useAuth();
   const userId = user?._id;
@@ -34,6 +37,30 @@ const SpecialSlip = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passportMatchError, setPassportMatchError] = useState("");
+  const [medicalCenters, setMedicalCenters] = useState([]); // [medicalCenters]
+  const [loading, setLoading] = useState(false);
+
+  /* 🔹 Fetch from API */
+  useEffect(() => {
+    const fetchCenters = async () => {
+      try {
+        const res = await axios.get("/medicalCenters");
+
+        const centers = res.data.centers || [];
+        const centerNames = centers.map((center) => center.name);
+        centerNames.unshift("---------");
+        setMedicalCenters(centerNames);
+      } catch (error) {
+        console.error("Failed to load medical centers", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCenters();
+  }, []);
+
+  console.log(medicalCenters);
 
   // Passport confirmation validation
   useEffect(() => {
@@ -214,7 +241,7 @@ const SpecialSlip = () => {
 
       await axios.post("/slips", payload);
 
-      alert("Normal Slip submitted successfully ✅");
+      alert("Special Slip submitted successfully ✅");
     } catch (error) {
       alert(error.response?.data?.message || "Failed to submit form");
     } finally {
@@ -237,6 +264,20 @@ const SpecialSlip = () => {
       passportExpiryDate: formatted,
     }));
   };
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return null;
+    const [y, m, d] = dateString.split("-");
+    return new Date(y, m - 1, d);
+  };
+
+  const formatDateForBackend = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-10">
@@ -258,7 +299,7 @@ const SpecialSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Bangladesh", "India", "Pakistan"].map((item) => (
+                {["Bangladesh"].map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -368,15 +409,26 @@ const SpecialSlip = () => {
               <label className="block font-medium text-gray-700 mb-1">
                 Date of Birth *
               </label>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
+              <DatePicker
+                selected={formatDateForInput(formData.dob)}
+                onChange={(date) => {
+                  const formattedDate = formatDateForBackend(date);
+                  handleChange({
+                    target: { name: "dob", value: formattedDate },
+                  });
+                }}
+                dateFormat="dd/MM/yyyy"
                 className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
                   errors.dob ? "border-red-500" : ""
                 }`}
+                wrapperClassName="w-full"
+                placeholderText="DD/MM/YYYY"
+                showYearDropdown
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
+                maxDate={new Date()}
               />
+
               {errors.dob && (
                 <p className="text-red-500 text-sm mt-1">{errors.dob}</p>
               )}
@@ -524,15 +576,26 @@ const SpecialSlip = () => {
               <label className="block font-medium text-gray-700 mb-1">
                 Passport Issue Date *
               </label>
-              <input
-                type="date"
-                name="passportIssueDate"
-                value={formData.passportIssueDate}
-                onChange={handleChange}
+              <DatePicker
+                selected={formatDateForInput(formData.passportIssueDate)}
+                onChange={(date) => {
+                  const formattedDate = formatDateForBackend(date);
+                  handleChange({
+                    target: { name: "passportIssueDate", value: formattedDate },
+                  });
+                }}
+                dateFormat="dd/MM/yyyy"
                 className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
                   errors.passportIssueDate ? "border-red-500" : ""
                 }`}
+                wrapperClassName="w-full"
+                placeholderText="DD/MM/YYYY"
+                showYearDropdown
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
+                maxDate={new Date()}
               />
+
               {errors.passportIssueDate && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.passportIssueDate}
@@ -543,15 +606,29 @@ const SpecialSlip = () => {
               <label className="block font-medium text-gray-700 mb-1">
                 Passport Expiry Date *
               </label>
-              <input
-                type="date"
-                name="passportExpiryDate"
-                value={formData.passportExpiryDate}
-                onChange={handleChange}
+              <DatePicker
+                selected={formatDateForInput(formData.passportExpiryDate)}
+                onChange={(date) => {
+                  const formattedDate = formatDateForBackend(date);
+                  handleChange({
+                    target: {
+                      name: "passportExpiryDate",
+                      value: formattedDate,
+                    },
+                  });
+                }}
+                dateFormat="dd/MM/yyyy"
                 className={`w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 ${
                   errors.passportExpiryDate ? "border-red-500" : ""
                 }`}
+                wrapperClassName="w-full"
+                placeholderText="DD/MM/YYYY"
+                showYearDropdown
+                yearDropdownItemNumber={100}
+                scrollableYearDropdown
+                minDate={formatDateForInput(formData.passportIssueDate)}
               />
+
               <div className="flex gap-2 mt-2">
                 <button
                   type="button"
@@ -725,15 +802,7 @@ const SpecialSlip = () => {
               onChange={handleChange}
               className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             >
-              {[
-                " -----",
-                "Rangpur Medical Center",
-                "Chittagong Medical Center",
-                "Dhaka Medical Center",
-                "Khulna Medical Center",
-                "Rajshahi Medical Center",
-                "Sylhet Medical Center",
-              ].map((item) => (
+              {medicalCenters.map((item) => (
                 <option key={item} value={item}>
                   {item}
                 </option>
