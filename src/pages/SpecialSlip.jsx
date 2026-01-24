@@ -3,6 +3,7 @@ import axios from "../src/api/axios";
 import { useAuth } from "../context/AuthContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 const SpecialSlip = () => {
   const { user } = useAuth();
@@ -40,6 +41,8 @@ const SpecialSlip = () => {
   const [medicalCenters, setMedicalCenters] = useState([]); // [medicalCenters]
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   /* 🔹 Fetch from API */
   useEffect(() => {
     const fetchCenters = async () => {
@@ -59,8 +62,6 @@ const SpecialSlip = () => {
 
     fetchCenters();
   }, []);
-
-
 
   // Passport confirmation validation
   useEffect(() => {
@@ -102,10 +103,22 @@ const SpecialSlip = () => {
   };
 
   const validatePassportValidity = (issueDate, expiryDate) => {
+    if (!issueDate || !expiryDate) return false;
+
     const issue = new Date(issueDate);
     const expiry = new Date(expiryDate);
-    const diffInYears = (expiry - issue) / (1000 * 60 * 60 * 24 * 365.25);
-    return diffInYears >= 5;
+
+    // Expiry must be after issue
+    if (expiry <= issue) return false;
+
+    // Minimum allowed expiry = Issue date + 5 years - 1 day
+    const minExpiry = new Date(
+      issue.getFullYear() + 5,
+      issue.getMonth(),
+      issue.getDate() - 1,
+    );
+
+    return expiry >= minExpiry;
   };
 
   const validateForm = () => {
@@ -242,6 +255,7 @@ const SpecialSlip = () => {
       await axios.post("/slips", payload);
 
       alert("Special Slip submitted successfully ✅");
+      navigate("/dashboard");
     } catch (error) {
       alert(error.response?.data?.message || "Failed to submit form");
     } finally {
@@ -251,19 +265,26 @@ const SpecialSlip = () => {
 
   const handleAddYears = (years) => {
     if (!formData.passportIssueDate) {
-      alert("Please set issue date first");
+      alert("Please set passport issue date first");
       return;
     }
 
     const issueDate = new Date(formData.passportIssueDate);
-    issueDate.setFullYear(issueDate.getFullYear() + years);
 
-    const formatted = issueDate.toISOString().split("T")[0];
+    const expiryDate = new Date(
+      issueDate.getFullYear() + years,
+      issueDate.getMonth(),
+      issueDate.getDate(),
+    );
+
+    const formatted = expiryDate.toISOString().split("T")[0];
+
     setFormData((prev) => ({
       ...prev,
       passportExpiryDate: formatted,
     }));
   };
+
   const formatDateForInput = (dateString) => {
     if (!dateString) return null;
     const [y, m, d] = dateString.split("-");

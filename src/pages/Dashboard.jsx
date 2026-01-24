@@ -371,7 +371,7 @@ function Dashboard() {
                         {row.comments && (
                           <span className="relative group text-[11px]  text-gray-600">
                             {row.comments.slice(0, 10)}...
-                            <span className="absolute hidden group-hover:block bg-gray-200 text-red-500  top-0 left-12 p-2 rounded text-xs ">
+                            <span className="absolute z-50 hidden group-hover:block bg-gray-200 text-red-500 top-0 left-12 mt-1 px-2 py-1 rounded text-xs max-w-[300px] truncate whitespace-nowrap shadow-lg">
                               {row.comments}
                             </span>
                           </span>
@@ -446,21 +446,25 @@ function Dashboard() {
 
                     {/* Action */}
                     <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
-                      <div className="flex justify-center space-x-1 sm:space-x-2">
-                        <Link
-                          to={`/slips/edit/${row._id}`}
-                          className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 text-xs sm:text-sm"
-                        >
-                          Edit
-                        </Link>
-                        <span className="text-gray-400">|</span>
-                        <button
-                          onClick={() => handleDelete(row._id)}
-                          className="text-red-600 hover:text-red-800 font-medium transition-colors duration-200 text-xs sm:text-sm"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      {row.status === "complete" ? (
+                        "None"
+                      ) : (
+                        <div className="flex justify-center space-x-1 sm:space-x-2">
+                          <Link
+                            to={`/slips/edit/${row._id}`}
+                            className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 text-xs sm:text-sm"
+                          >
+                            Edit
+                          </Link>
+                          <span className="text-gray-400">|</span>
+                          <button
+                            onClick={() => handleDelete(row._id)}
+                            className="text-red-600 hover:text-red-800 font-medium transition-colors duration-200 text-xs sm:text-sm"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
