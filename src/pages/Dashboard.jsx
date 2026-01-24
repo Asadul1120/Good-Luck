@@ -428,15 +428,13 @@ function Dashboard() {
 
                     {/* Center */}
                     <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
-                      {row.medicalCenter}
+                      {row.slipType=== "Special-Slip" ? row.medicalCenter : "None"}
+                      {/* {row.medicalCenter} */}
                     </td>
 
                     {/* Allocate Center */}
                     <td className="border px-2 py-1.5 sm:px-2 sm:py-3">
-                      {row.slipType === "Night-Slip" ||
-                      row.slipType === "Normal-Slip"
-                        ? "None"
-                        : row.medicalCenter}
+                      {row.allocateCenter}
                     </td>
 
                     {/* Remarks */}
