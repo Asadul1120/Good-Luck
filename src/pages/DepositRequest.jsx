@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "../src/api/axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 const DepositRequest = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ const DepositRequest = () => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const formatDateForInput = (dateString) => {
     if (!dateString) return null;
@@ -116,6 +119,7 @@ const DepositRequest = () => {
       });
 
       alert("Deposit request submitted successfully!");
+      navigate("/depositHistory");
 
       // optional reset
       setFormData({
