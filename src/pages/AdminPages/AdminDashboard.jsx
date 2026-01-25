@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../src/api/axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const isValidDate = (date) => {
   return date instanceof Date && !isNaN(date);
@@ -12,7 +14,12 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentLinks, setPaymentLinks] = useState({});
   const [amounts, setAmounts] = useState({}); // ✅ AMOUNT STATE
+  const [allocateCenters, setAllocateCenters] = useState({}); // ✅ ALLOCATE CENTERS
+
   const [comments, setComments] = useState({}); // ✅ setComments
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -85,41 +92,100 @@ const AdminDashboard = () => {
       </h1>
 
       {/* FILTER BAR */}
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-4 gap-3">
-        <input
-          type="text"
-          placeholder="Search Passport / Name / NID"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 border rounded-md"
-        />
+      <div className="mb-5 bg-white p-4 rounded-xl shadow">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+          {/* SEARCH */}
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Search
+            </label>
+            <input
+              type="text"
+              placeholder="Passport / Name / NID"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg text-sm
+        focus:ring-2 focus:ring-indigo-400 outline-none"
+            />
+          </div>
 
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="px-4 py-2 border rounded-md"
-        >
-          <option value="all">All Slip Types</option>
-          <option value="Normal-Slip">Normal Slip</option>
-          <option value="Special-Slip">Special Slip</option>
-          <option value="Night-Slip">Night Slip</option>
-        </select>
+          {/* SLIP TYPE */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Slip Type
+            </label>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg text-sm
+        focus:ring-2 focus:ring-indigo-400 outline-none"
+            >
+              <option value="all">All</option>
+              <option value="Normal-Slip">Normal</option>
+              <option value="Special-Slip">Special</option>
+              <option value="Night-Slip">Night</option>
+            </select>
+          </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className={`px-4 py-2 rounded-md border font-semibold outline-none
-            ${getStatusClass(statusFilter)}`}
-        >
-          <option value="all">All Status</option>
-          <option value="no-balance">NO-BALANCE</option>
-          <option value="no-queue">NO-QUEUE</option>
-          <option value="processing">PROCESSING</option>
-          <option value="processing-link">PROCESSING-LINK</option>
-          <option value="complete">COMPLETE</option>
-          <option value="cancelled">CANCELLED</option>
-          <option value="other">OTHER</option>
-        </select>
+          {/* STATUS */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={`w-full px-4 py-2 rounded-lg border text-sm font-semibold
+        outline-none focus:ring-2 focus:ring-indigo-400
+        ${getStatusClass(statusFilter)}`}
+            >
+              <option value="all">All</option>
+              <option value="no-balance">NO-BALANCE</option>
+              <option value="no-queue">NO-QUEUE</option>
+              <option value="processing">PROCESSING</option>
+              <option value="processing-link">PROCESSING-LINK</option>
+              <option value="complete">COMPLETE</option>
+              <option value="cancelled">CANCELLED</option>
+              <option value="other">OTHER</option>
+            </select>
+          </div>
+
+          {/* START DATE */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Start Date
+            </label>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              className="w-full px-4 py-2 border rounded-lg text-sm
+        focus:ring-2 focus:ring-indigo-400 outline-none"
+              showYearDropdown
+              yearDropdownItemNumber={50}
+              scrollableYearDropdown
+            />
+          </div>
+
+          {/* END DATE */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              End Date
+            </label>
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              className="w-full px-4 py-2 border rounded-lg text-sm
+        focus:ring-2 focus:ring-indigo-400 outline-none"
+              showYearDropdown
+              yearDropdownItemNumber={50}
+              scrollableYearDropdown
+            />
+          </div>
+        </div>
       </div>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
@@ -322,7 +388,7 @@ const AdminDashboard = () => {
 
                 <td className="border px-2 py-1">{item.remarks || "-"}</td>
 
-                {/* AMOUNT + URL + SEND */}
+                {/* AMOUNT + URL + ALLOCATE CENTER + SEND */}
                 <td className="border px-2 py-1" colSpan={2}>
                   <div className="flex gap-2 items-center">
                     <input
@@ -351,6 +417,19 @@ const AdminDashboard = () => {
                       className="px-2 py-1 border rounded text-xs flex-1"
                     />
 
+                    <input
+                      type="text"
+                      placeholder="Allocate Center"
+                      value={allocateCenters[item._id] || ""}
+                      onChange={(e) =>
+                        setAllocateCenters((prev) => ({
+                          ...prev,
+                          [item._id]: e.target.value,
+                        }))
+                      }
+                      className="px-2 py-1 border rounded text-xs flex-1"
+                    />
+
                     <button
                       disabled={item.status === "complete"}
                       onClick={async () => {
@@ -358,6 +437,7 @@ const AdminDashboard = () => {
                           await axios.patch(`/slips/${item._id}/payment-link`, {
                             paymentLink: paymentLinks[item._id],
                             amount: Number(amounts[item._id]),
+                            allocateCenter: allocateCenters[item._id],
                           });
 
                           setData((prev) =>
@@ -374,11 +454,11 @@ const AdminDashboard = () => {
                         }
                       }}
                       className={`px-3 py-1 text-xs rounded font-semibold
-                        ${
-                          item.status === "complete"
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-yellow-500 hover:bg-yellow-600 text-white"
-                        }`}
+        ${
+          item.status === "complete"
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-yellow-500 hover:bg-yellow-600 text-white"
+        }`}
                     >
                       Send
                     </button>
