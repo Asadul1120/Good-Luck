@@ -18,8 +18,9 @@ const AdminDashboard = () => {
 
   const [comments, setComments] = useState({}); // ✅ setComments
 
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const today = new Date();
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
 
   useEffect(() => {
     fetchData();
@@ -61,7 +62,18 @@ const AdminDashboard = () => {
       item.lastName?.toLowerCase().includes(search) ||
       item.nationalId?.toLowerCase().includes(search);
 
-    return matchesSlipType && matchesStatus && matchesSearch;
+    // ✅ DATE FILTER
+    const itemDate = item.createdAt ? new Date(item.createdAt) : null;
+
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    const matchesDate = !itemDate || (itemDate >= start && itemDate <= end);
+
+    return matchesSlipType && matchesStatus && matchesSearch && matchesDate;
   });
 
   const getStatusClass = (status) => {
@@ -157,12 +169,16 @@ const AdminDashboard = () => {
             </label>
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={(date) => {
+                setStartDate(date);
+                if (date > endDate) setEndDate(date);
+              }}
+              maxDate={endDate}
               dateFormat="dd/MM/yyyy"
-              placeholderText="DD/MM/YYYY"
               className="w-full px-4 py-2 border rounded-lg text-sm
-        focus:ring-2 focus:ring-indigo-400 outline-none"
+  focus:ring-2 focus:ring-indigo-400 outline-none"
               showYearDropdown
+              placeholderText="DD/MM/YYYY"
               yearDropdownItemNumber={50}
               scrollableYearDropdown
             />
@@ -176,13 +192,14 @@ const AdminDashboard = () => {
             <DatePicker
               selected={endDate}
               onChange={(date) => setEndDate(date)}
+              minDate={startDate}
               dateFormat="dd/MM/yyyy"
-              placeholderText="DD/MM/YYYY"
               className="w-full px-4 py-2 border rounded-lg text-sm
-        focus:ring-2 focus:ring-indigo-400 outline-none"
+  focus:ring-2 focus:ring-indigo-400 outline-none"
               showYearDropdown
               yearDropdownItemNumber={50}
               scrollableYearDropdown
+              placeholderText="DD/MM/YYYY"
             />
           </div>
         </div>

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../src/api/axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const AdminDeposits = () => {
   const [deposits, setDeposits] = useState([]);
@@ -11,6 +13,10 @@ const AdminDeposits = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterMethod, setFilterMethod] = useState("all");
   const [searchRef, setSearchRef] = useState("");
+
+  // NEW: Date filter states
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
 
   useEffect(() => {
     const fetchDeposits = async () => {
@@ -48,7 +54,22 @@ const AdminDeposits = () => {
     return "bg-yellow-100 text-yellow-700";
   };
 
-  // FILTER LOGIC (unchanged)
+  // Helper function to check if a date is within range
+  const isDateInRange = (dateString) => {
+    if (!dateString) return false;
+
+    const depositDate = new Date(dateString);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Set time to beginning and end of day for proper comparison
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+
+    return depositDate >= start && depositDate <= end;
+  };
+
+  // UPDATED FILTER LOGIC with date filtering
   const filteredDeposits = deposits
     .filter((d) =>
       filterStatus === "all" ? true : d.statusRaw === filterStatus,
@@ -58,7 +79,22 @@ const AdminDeposits = () => {
     )
     .filter((d) =>
       d.referenceNo.toLowerCase().includes(searchRef.trim().toLowerCase()),
-    );
+    )
+    // NEW: Date filtering - check both paymentDate and requestDate
+    .filter((d) => {
+      // Use paymentDate first, fall back to requestDate
+      const dateToCheck = d.paymentDate || d.requestDate;
+      return isDateInRange(dateToCheck);
+    });
+
+  // Reset all filters including dates
+  const resetAllFilters = () => {
+    setFilterStatus("all");
+    setFilterMethod("all");
+    setSearchRef("");
+    setStartDate(new Date());
+    setEndDate(new Date());
+  };
 
   if (loading) {
     return (
@@ -78,7 +114,8 @@ const AdminDeposits = () => {
 
           {/* ================= FILTER BAR ================= */}
           <div className="bg-gray-50 rounded-xl p-4 mb-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* First row - existing filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
               {/* STATUS */}
               <select
                 value={filterStatus}
@@ -117,17 +154,70 @@ const AdminDeposits = () => {
                 className="border rounded-lg px-3 py-2 text-sm"
               />
 
-              {/* RESET */}
+              {/* RESET ALL FILTERS */}
               <button
-                onClick={() => {
-                  setFilterStatus("all");
-                  setFilterMethod("all");
-                  setSearchRef("");
-                }}
+                onClick={resetAllFilters}
                 className="bg-blue-600 text-white rounded-lg px-3 py-2 text-sm hover:bg-blue-700 transition"
               >
-                Reset Filters
+                Reset All Filters
               </button>
+            </div>
+
+            {/* Second row - date filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* START DATE */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  Start Date
+                </label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  selectsStart
+                  startDate={startDate}
+                  endDate={endDate}
+                  maxDate={endDate}
+                  className="border rounded-lg px-3 py-2 text-sm w-full"
+                  dateFormat="dd/MM/yyyy"
+                />
+              </div>
+
+              {/* END DATE */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  End Date
+                </label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  selectsEnd
+                  startDate={startDate}
+                  endDate={endDate}
+                  minDate={startDate}
+                  maxDate={new Date()}
+                  className="border rounded-lg px-3 py-2 text-sm w-full"
+                  dateFormat="dd/MM/yyyy"
+                />
+              </div>
+
+              {/* RESET DATES ONLY */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1 opacity-0">
+                  Reset Dates
+                </label>
+                <button
+                  onClick={() => {
+                    setStartDate(new Date());
+                    setEndDate(new Date());
+                  }}
+                  className="bg-gray-200 text-gray-700 rounded-lg px-3 py-2 text-sm w-full hover:bg-gray-300 transition"
+                >
+                  Reset Dates to Today
+                </button>
+              </div>
+
+              {/* EMPTY SPACER */}
+              <div></div>
             </div>
           </div>
           {/* ================= END FILTER BAR ================= */}
