@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -6,6 +6,7 @@ import axios from "../src/api/axios";
 import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const userId = user?._id;
   const today = new Date();
@@ -209,14 +210,22 @@ function Dashboard() {
             </label>
             <select
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              onChange={(e) => {
+                const type = e.target.value;
+                setType(type);
+
+                // 🔥 Redirect when Slip-Payment selected
+                if (type === "Slip-Payment") {
+                  navigate("/userSlipPayments");
+                }
+              }}
               className="w-full border rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors duration-200"
             >
               <option value="all">All Types</option>
               <option value="Normal-Slip">Normal</option>
               <option value="night">Normal Night</option>
               <option value="special">Special</option>
-              <option value="slip">Slip Payment</option>
+              <option value="Slip-Payment">Slip Payment</option>
             </select>
           </div>
 
@@ -428,7 +437,9 @@ function Dashboard() {
 
                     {/* Center */}
                     <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
-                      {row.slipType=== "Special-Slip" ? row.medicalCenter : "None"}
+                      {row.slipType === "Special-Slip"
+                        ? row.medicalCenter
+                        : "None"}
                       {/* {row.medicalCenter} */}
                     </td>
 

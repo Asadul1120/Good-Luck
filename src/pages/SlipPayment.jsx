@@ -1,18 +1,40 @@
 import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import axios from "../src/api/axios";
+
+import { useNavigate } from "react-router-dom";
 
 const SlipPayment = () => {
   const [paymentLink, setPaymentLink] = useState("");
   const [remarks, setRemarks] = useState("");
 
+  const navigate = useNavigate();
+
+  const { user } = useAuth();
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
     const data = {
-      paymentLink: paymentLink,
+      slipType: "Slip-Payment",
+      userId: user._id,
+      playLink: paymentLink,
       remarks: remarks,
     };
-
-    console.log("Slip Payment Data:", data);
+    try {
+      axios
+        .post("/slipPayment/create", data)
+        .then((response) => {
+          console.log(response.data);
+          alert(response.data.message);
+          navigate("/userSlipPayments");
+        })
+        .catch((error) => {
+          alert(error.response.data.message);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

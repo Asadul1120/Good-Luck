@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "../../src/api/axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 const isValidDate = (date) => {
   return date instanceof Date && !isNaN(date);
 };
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [filterType, setFilterType] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -128,7 +130,15 @@ const AdminDashboard = () => {
             </label>
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFilterType(value);
+
+                // 🔥 Redirect when Slip-Payment selected
+                if (value === "Slip-Payment") {
+                  navigate("/slipPayments");
+                }
+              }}
               className="w-full px-4 py-2 border rounded-lg text-sm
         focus:ring-2 focus:ring-indigo-400 outline-none"
             >
@@ -136,6 +146,7 @@ const AdminDashboard = () => {
               <option value="Normal-Slip">Normal</option>
               <option value="Special-Slip">Special</option>
               <option value="Night-Slip">Night</option>
+              <option value="Slip-Payment">Slip-Payment</option>
             </select>
           </div>
 

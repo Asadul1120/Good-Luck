@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "../src/api/axios";
@@ -8,11 +8,15 @@ const DepositHistory = () => {
   const { user } = useAuth();
   const userId = user?._id;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // FIX: Create today date safely without side effects
+  const getToday = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  };
 
-  const [startDate, setStartDate] = useState(today);
-  const [endDate, setEndDate] = useState(today);
+  const [startDate, setStartDate] = useState(getToday());
+  const [endDate, setEndDate] = useState(getToday());
   const [status, setStatus] = useState("all");
 
   const [tableData, setTableData] = useState([]);
@@ -31,10 +35,13 @@ const DepositHistory = () => {
       setLoading(true);
       try {
         const res = await axios.get(`/deposits/user/${userId}`);
-        setTableData(res.data.data || []);
-        setFilteredData(res.data.data || []);
+        const data = res.data.data || [];
+        setTableData(data);
+        setFilteredData(data);
       } catch (err) {
         console.error("Fetch error:", err);
+        setTableData([]);
+        setFilteredData([]);
       } finally {
         setLoading(false);
       }
@@ -44,36 +51,72 @@ const DepositHistory = () => {
   }, [userId]);
 
   // ================= APPLY FILTER =================
-  const applyFilter = () => {
-    const start = startDate ? new Date(startDate.setHours(0, 0, 0, 0)) : null;
+  const applyFilter = useCallback(() => {
+    // FIX: Clone dates to avoid mutating state
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
 
-    const end = endDate ? new Date(endDate.setHours(23, 59, 59, 999)) : null;
+    if (start) start.setHours(0, 0, 0, 0);
+    if (end) end.setHours(23, 59, 59, 999);
 
     const result = tableData.filter((row) => {
-      // status
+      // status filter
       if (status !== "all" && row.statusRaw !== status) return false;
 
-      const createdAt = new Date(row.createdAt);
+      // date filter
+      if (row.createdAt) {
+        const createdAt = new Date(row.createdAt);
 
-      if (start && createdAt < start) return false;
-      if (end && createdAt > end) return false;
+        // FIX: Proper date comparison without mutating original dates
+        if (start && createdAt < start) return false;
+        if (end && createdAt > end) return false;
+      }
 
       return true;
     });
 
     setFilteredData(result);
-  };
+  }, [tableData, status, startDate, endDate]);
+
+  // FIX: Apply filter when tableData or filters change
+  useEffect(() => {
+    if (tableData.length > 0) {
+      applyFilter();
+    }
+  }, [tableData, applyFilter]);
 
   // ================= MODAL =================
-  const openModal = (slipUrl) => {
+  const openModal = useCallback((slipUrl) => {
+    if (!slipUrl) return;
     setActiveSlip(slipUrl);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setActiveSlip(null);
-  };
+  }, []);
+
+  // FIX: Safe date change handlers to prevent date mutation
+  const handleStartDateChange = useCallback((date) => {
+    if (!date) return;
+    const newDate = new Date(date);
+    newDate.setHours(0, 0, 0, 0);
+    setStartDate(newDate);
+  }, []);
+
+  const handleEndDateChange = useCallback((date) => {
+    if (!date) return;
+    const newDate = new Date(date);
+    newDate.setHours(23, 59, 59, 999);
+    setEndDate(newDate);
+  }, []);
+
+  // FIX: Reset dates to today safely
+  const resetDatesToToday = useCallback(() => {
+    setStartDate(getToday());
+    setEndDate(getToday());
+  }, []);
 
   return (
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
@@ -88,7 +131,7 @@ const DepositHistory = () => {
             <label className="text-sm font-medium">Start Date</label>
             <DatePicker
               selected={startDate}
-              onChange={setStartDate}
+              onChange={handleStartDateChange}
               dateFormat="dd/MM/yyyy"
               placeholderText="DD/MM/YYYY"
               maxDate={new Date()}
@@ -100,7 +143,7 @@ const DepositHistory = () => {
             <label className="text-sm font-medium">End Date</label>
             <DatePicker
               selected={endDate}
-              onChange={setEndDate}
+              onChange={handleEndDateChange}
               dateFormat="dd/MM/yyyy"
               placeholderText="DD/MM/YYYY"
               minDate={startDate}
@@ -173,19 +216,19 @@ const DepositHistory = () => {
               </tr>
             ) : (
               filteredData.map((row, index) => (
-                <tr key={row.id} className="hover:bg-gray-50">
+                <tr key={row.id || index} className="hover:bg-gray-50">
                   <td className="border px-3 py-2">{index + 1}</td>
                   <td className="border px-3 py-2 uppercase">
-                    {row.id.slice(0, 6)}
+                    {row.id ? row.id.slice(0, 6) : "N/A"}
                   </td>
                   <td className="border px-3 py-2">
-                    {row.username}{" "}
+                    {row.username || "N/A"}{" "}
                     <span className="text-xs text-gray-500">
-                      ({row.accountType})
+                      ({row.accountType || "N/A"})
                     </span>
                   </td>
                   <td className="border px-3 py-2 text-red-600 font-semibold">
-                    {row.amount}
+                    {row.amount || "0"}
                   </td>
                   <td className="border px-3 py-2">
                     <span
@@ -197,24 +240,27 @@ const DepositHistory = () => {
                             : "bg-yellow-100 text-yellow-700"
                       }`}
                     >
-                      {row.status}
+                      {row.status || "Unknown"}
                     </span>
                   </td>
-                  <td className="border px-3 py-2">{row.adminRemarks}</td>
-                  <td className="border px-3 py-2">{row.userRemarks}</td>
+                  <td className="border px-3 py-2">
+                    {row.adminRemarks || "-"}
+                  </td>
+                  <td className="border px-3 py-2">{row.userRemarks || "-"}</td>
                   <td className="border px-3 py-2">
                     <button
                       onClick={() => openModal(row.depositSlip)}
                       className="text-blue-600 hover:underline"
+                      disabled={!row.depositSlip}
                     >
-                      View
+                      {row.depositSlip ? "View" : "N/A"}
                     </button>
                   </td>
                   <td className="border px-3 py-2 whitespace-nowrap">
-                    {row.paymentDate}
+                    {row.paymentDate || "-"}
                   </td>
                   <td className="border px-3 py-2 whitespace-nowrap">
-                    {row.requestDate}
+                    {row.requestDate || "-"}
                   </td>
                 </tr>
               ))
@@ -235,16 +281,26 @@ const DepositHistory = () => {
           >
             <button
               onClick={closeModal}
-              className="absolute top-2 right-3 text-xl font-bold"
+              className="absolute top-2 right-3 text-xl font-bold hover:text-gray-700"
             >
               ×
             </button>
             <h2 className="text-center font-semibold mb-3">Deposit Slip</h2>
-            <img
-              src={activeSlip}
-              alt="Deposit Slip"
-              className="w-full rounded border"
-            />
+            {activeSlip ? (
+              <img
+                src={activeSlip}
+                alt="Deposit Slip"
+                className="w-full rounded border max-h-[70vh] object-contain"
+                onError={(e) => {
+                  e.target.src =
+                    "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                }}
+              />
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                Image not available
+              </div>
+            )}
           </div>
         </div>
       )}
