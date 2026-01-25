@@ -1,14 +1,21 @@
 import React, { useState } from "react";
+import axios from "../src/api/axios";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const oldPassword = e.target.currentPassword.value;
     const newPassword = e.target.newPassword.value;
     const confirmPassword = e.target.confirmPassword.value;
 
@@ -17,12 +24,25 @@ const ChangePassword = () => {
       return;
     }
 
-    setError("");
-    alert("✅ Password changed successfully!");
+    try {
+      setLoading(true);
+      setError("");
+      setSuccess("");
 
-    console.log("Old Password:", e.target.currentPassword.value);
-    console.log("New Password:", newPassword);
-    e.target.reset();
+      await axios.patch(
+        "/users/me/password",
+        { oldPassword, newPassword },
+        { withCredentials: true }
+      );
+
+      setSuccess("✅ Password changed successfully!");
+      e.target.reset();
+       navigate("/profile");
+    } catch (err) {
+      setError(err.response?.data?.message || "❌ Failed to change password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,7 +53,6 @@ const ChangePassword = () => {
         </h1>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          
           {/* Old Password */}
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -45,13 +64,12 @@ const ChangePassword = () => {
                 name="currentPassword"
                 required
                 className="w-full px-4 py-2 border rounded-md"
-                placeholder="Enter old password"
               />
               <span
                 onClick={() => setShowCurrent(!showCurrent)}
                 className="absolute right-3 top-2.5 cursor-pointer"
               >
-                {showCurrent ? "👤" : "👁️"}
+                {showCurrent ? "🙈" : "👁️"}
               </span>
             </div>
           </div>
@@ -67,13 +85,12 @@ const ChangePassword = () => {
                 name="newPassword"
                 required
                 className="w-full px-4 py-2 border rounded-md"
-                placeholder="Enter new password"
               />
               <span
                 onClick={() => setShowNew(!showNew)}
                 className="absolute right-3 top-2.5 cursor-pointer"
               >
-                {showNew ? "👤" : "👁️"}
+                {showNew ? "🙈" : "👁️"}
               </span>
             </div>
           </div>
@@ -89,30 +106,29 @@ const ChangePassword = () => {
                 name="confirmPassword"
                 required
                 className="w-full px-4 py-2 border rounded-md"
-                placeholder="Confirm new password"
               />
               <span
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute right-3 top-2.5 cursor-pointer"
               >
-                {showConfirm ? "👤" : "👁️"}
+                {showConfirm ? "🙈" : "👁️"}
               </span>
             </div>
           </div>
 
-          {/* Error */}
           {error && (
-            <p className="text-red-600 text-sm font-medium">
-              {error}
-            </p>
+            <p className="text-red-600 text-sm font-medium">{error}</p>
+          )}
+          {success && (
+            <p className="text-green-600 text-sm font-medium">{success}</p>
           )}
 
-          {/* Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-60"
           >
-            Change Password
+            {loading ? "Changing..." : "Change Password"}
           </button>
         </form>
       </div>
