@@ -91,7 +91,7 @@ const Profile = () => {
     { label: "Email:", value: profileData.email },
     { label: "Phone:", value: profileData.phone },
     { label: "Address:", value: profileData.address },
-    { label: "Amount from Submitted Work:", value: profileData.amount || "00" },
+    { label: "Amount from Submitted Work:", value: profileData.WorkSubmittedAmount || "00" },
     { label: "Total Balance:", value: profileData.balance },
   ];
 
