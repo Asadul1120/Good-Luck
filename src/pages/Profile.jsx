@@ -1,30 +1,57 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "../src/api/axios"; // ✅ axios instance
+import { useAuth } from "../context/AuthContext";
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [submitCount, setSubmitCount] = useState(0);
+
+  const { user } = useAuth();
+
+useEffect(() => {
+  if (user) {
+    setProfileData(user);
+  }
+}, [user]);
 
   // ================= GET USER DATA =================
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const res = await axios.get("/users/me"); // ✅ correct
+  //       setProfileData(res.data.user); // 🔥 backend sends { user }
+  //     } catch (error) {
+  //       console.error(
+  //         "Error fetching user data:",
+  //         error.response?.data || error.message,
+  //       );
+  //     }
+  //   };
+  //   fetchUserData();
+  // }, []);
+
   useEffect(() => {
-    const fetchUserData = async () => {
+    if (!user?._id) return;
+
+    const fetchSubmitWork = async () => {
       try {
-        const res = await axios.get("/users/me"); // ✅ correct
-        setProfileData(res.data.user); // 🔥 backend sends { user }
+        const res = await axios.get(`/submitWork/price/${user._id}`);
+
+        setSubmitCount(res.data.totalAmount);
       } catch (error) {
         console.error(
-          "Error fetching user data:",
-          error.response?.data || error.message
+          "Error fetching submit work amount:",
+          error.response?.data || error.message,
         );
       }
     };
-    fetchUserData();
-  }, []);
 
-  
+    fetchSubmitWork();
+  }, [user]);
 
   // ================= FILE CHANGE =================
   const handleFileChange = (e) => {
@@ -91,7 +118,10 @@ const Profile = () => {
     { label: "Email:", value: profileData.email },
     { label: "Phone:", value: profileData.phone },
     { label: "Address:", value: profileData.address },
-    { label: "Amount from Submitted Work:", value: profileData.WorkSubmittedAmount || "00" },
+    {
+      label: "Amount from Submitted Work:",
+      value: submitCount || "00",
+    },
     { label: "Total Balance:", value: profileData.balance },
   ];
 

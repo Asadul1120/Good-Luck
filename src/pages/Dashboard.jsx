@@ -107,7 +107,7 @@ function Dashboard() {
         return "bg-green-600";
       case "approved":
         return "bg-blue-600";
-      case "canceled":
+      case "cancelled":
         return "bg-red-600";
       case "no-balance":
         return "bg-orange-600";
@@ -239,7 +239,7 @@ function Dashboard() {
               className="w-full border rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors duration-200"
             >
               <option value="all">All Status</option>
-              <option value="canceled">CANCELLED</option>
+              <option value="cancelled">CANCELLED</option>
               <option value="complete">COMPLETE</option>
               <option value="no-balance">NO-BALANCE</option>
               <option value="on-queue">ON QUEUE</option>
@@ -455,7 +455,11 @@ function Dashboard() {
 
                     {/* Action */}
                     <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
-                      {row.status === "complete" ? (
+                      {row.status === "complete" ||
+                      row.status === "cancelled" ||
+                      row.status === "processing" ||
+                      row.status === "processing-link" ||
+                      row.status === "other" ? (
                         "None"
                       ) : (
                         <div className="flex justify-center space-x-1 sm:space-x-2">
