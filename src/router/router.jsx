@@ -26,6 +26,7 @@ import SlipUpdate from "../pages/SlipUpdate";
 import AddMedicalCenter from "../pages/AdminPages/AddmedicalCenter";
 import AdminSlipPayments from "../pages/AdminPages/AdminSlipPayments";
 import UserSlipPayments from "../pages/UserSlipPayments";
+import AddPaymentMethod from "../pages/AdminPages/AddPaymentMethod";
 
 const router = createBrowserRouter([
   {
@@ -123,7 +124,7 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-       {
+      {
         path: "/userSlipPayments",
         element: (
           <PrivateRoute>
@@ -139,6 +140,15 @@ const router = createBrowserRouter([
           </AdminRoute>
         ),
       },
+      {
+        path: "/add-payment-method",
+        element: (
+          <AdminRoute>
+            <AddPaymentMethod />
+          </AdminRoute>
+        ),
+      },
+
       {
         path: "/adminPanel",
         element: (
