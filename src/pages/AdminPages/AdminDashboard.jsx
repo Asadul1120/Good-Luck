@@ -3,6 +3,7 @@ import axios from "../../src/api/axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
+import FeatureControl from "../../components/FeatureControl";
 
 const isValidDate = (date) => {
   return date instanceof Date && !isNaN(date);
@@ -104,6 +105,8 @@ const AdminDashboard = () => {
       <h1 className="text-2xl font-bold mb-4 text-center">
         Admin Dashboard – All Slips
       </h1>
+
+      <FeatureControl />
 
       {/* FILTER BAR */}
       <div className="mb-5 bg-white p-4 rounded-xl shadow">

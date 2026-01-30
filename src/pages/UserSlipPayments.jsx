@@ -120,7 +120,7 @@ function UserSlipPayments() {
     "Username",
     "Email",
     "Phone",
-    "Play Link",
+    "Actions",
   ];
 
   if (loading) {
@@ -302,7 +302,9 @@ function UserSlipPayments() {
                   <td className="border px-2 py-2">{row.phone || "-"}</td>
 
                   <td className="border px-2 py-2 text-blue-600">
-                    {row.paymentLink ? (
+                    {row.status === "complete" ? (
+                      "None"
+                    ) : (
                       <a
                         href={row.playLink}
                         target="_blank"
@@ -311,8 +313,6 @@ function UserSlipPayments() {
                       >
                         Open
                       </a>
-                    ) : (
-                      "-"
                     )}
                   </td>
                 </tr>

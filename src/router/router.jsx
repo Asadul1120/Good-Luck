@@ -28,6 +28,40 @@ import AdminSlipPayments from "../pages/AdminPages/AdminSlipPayments";
 import UserSlipPayments from "../pages/UserSlipPayments";
 import AddPaymentMethod from "../pages/AdminPages/AddPaymentMethod";
 
+/* =========================
+   Feature Guard Pages
+========================= */
+
+import { useAuth } from "../context/AuthContext";
+
+const NormalSlipPage = () => {
+  const { features, loading } = useAuth();
+  if (loading) return null;
+  if (!features?.NORMAL_SLIP) return <NotFound />;
+  return <NormalSlip />;
+};
+
+const NightSlipPage = () => {
+  const { features, loading } = useAuth();
+  if (loading) return null;
+  if (!features?.NIGHT_SLIP) return <NotFound />;
+  return <NightSlip />;
+};
+
+const SpecialSlipPage = () => {
+  const { features, loading } = useAuth();
+  if (loading) return null;
+  if (!features?.SPECIAL_SLIP) return <NotFound />;
+  return <SpecialSlip />;
+};
+
+const SlipPaymentPage = () => {
+  const { features, loading } = useAuth();
+  if (loading) return null;
+  if (!features?.SLIP_PAYMENT) return <NotFound />;
+  return <SlipPayment />;
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -67,7 +101,7 @@ const router = createBrowserRouter([
         path: "/normal-slip",
         element: (
           <PrivateRoute>
-            <NormalSlip />
+            <NormalSlipPage />
           </PrivateRoute>
         ),
       },
@@ -76,15 +110,16 @@ const router = createBrowserRouter([
         path: "/night-slip",
         element: (
           <PrivateRoute>
-            <NightSlip />
+            <NightSlipPage />
           </PrivateRoute>
         ),
       },
+
       {
         path: "/special-slip",
         element: (
           <PrivateRoute>
-            <SpecialSlip />
+            <SpecialSlipPage />
           </PrivateRoute>
         ),
       },
@@ -106,7 +141,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/slip-payment",
-        element: <SlipPayment />,
+        element: (
+          <PrivateRoute>
+            <SlipPaymentPage />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/change-password",

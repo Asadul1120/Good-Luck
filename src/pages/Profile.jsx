@@ -12,11 +12,11 @@ const Profile = () => {
 
   const { user } = useAuth();
 
-useEffect(() => {
-  if (user) {
-    setProfileData(user);
-  }
-}, [user]);
+  useEffect(() => {
+    if (user) {
+      setProfileData(user);
+    }
+  }, [user]);
 
   // ================= GET USER DATA =================
   // useEffect(() => {
@@ -97,6 +97,7 @@ useEffect(() => {
       formData.append("image", selectedFile);
 
       const res = await axios.patch("/users/me/image", formData);
+      refreshUser();
 
       setProfileData((prev) => ({
         ...prev,

@@ -11,6 +11,8 @@ import {
   Trash2,
   RefreshCw,
   AlertCircle,
+  CreditCard,
+  Key,
 } from "lucide-react";
 
 const AdminPanel = () => {
@@ -21,6 +23,7 @@ const AdminPanel = () => {
   const [activeRole, setActiveRole] = useState("all");
   const [error, setError] = useState(null);
   const [updatingUser, setUpdatingUser] = useState(null);
+  const [passwordReset, setPasswordReset] = useState({});
 
   useEffect(() => {
     fetchUsers();
@@ -63,6 +66,22 @@ const AdminPanel = () => {
     }
   };
 
+  const handlePasswordReset = async (id) => {
+    const newPassword = passwordReset[id];
+    if (!newPassword || newPassword.length < 6) {
+      alert("Password must be at least 6 characters long");
+      return;
+    }
+
+    try {
+      await axios.patch(`/users/${id}/reset-password`, { newPassword });
+      alert("Password reset successfully");
+      setPasswordReset((prev) => ({ ...prev, [id]: "" }));
+    } catch (error) {
+      alert(error.response?.data?.message || "Password reset failed");
+    }
+  };
+
   const filteredUsers = users.filter((u) => {
     const roleMatch = activeRole === "all" || u.role === activeRole;
     const searchMatch =
@@ -99,10 +118,9 @@ const AdminPanel = () => {
         value={currentRole}
         onChange={(e) => handleRoleChange(userId, e.target.value)}
         disabled={updatingUser === userId}
-        className="appearance-none border border-gray-300 rounded-lg px-3 py-2 pr-8 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[120px]"
+        className="appearance-none border border-gray-300 rounded-lg px-3 py-2 pr-8 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
       >
         <option value="user">User</option>
-        <option value="moderator">Moderator</option>
         <option value="admin">Admin</option>
       </select>
       {updatingUser === userId && (
@@ -264,7 +282,7 @@ const AdminPanel = () => {
           </div>
         </div>
 
-        {/* User Table */}
+        {/* Users Grid - Always in Card View */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {error ? (
             <div className="p-8 text-center">
@@ -289,138 +307,132 @@ const AdminPanel = () => {
             </div>
           ) : (
             <>
-              {/* Desktop Table */}
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        User
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Role
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {filteredUsers.map((u) => (
-                      <tr
-                        key={u._id}
-                        className="hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <img
-                                  src={
-                                    u.image
-                                      ? u.image
-                                      : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                                  }
-                                  alt="User"
-                                  className="w-15 h-12 object-cover rounded-full "
-                                />
-                              </div>
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {u.username}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                ID: {u._id.slice(0, 8)}...
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {u.email}
-                        </td>
-                        <td className="px-6 py-4">
-                          {u._id === user?.id ? (
-                            <span className={roleBadge(u.role)}>
-                              <RoleIcon role={u.role} />
-                              {u.role} (You)
-                            </span>
-                          ) : (
-                            <RoleSelector userId={u._id} currentRole={u.role} />
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          {u._id === user?.id ? (
-                            <span className="text-sm text-gray-500">
-                              Current user
-                            </span>
-                          ) : (
-                            <button
-                              onClick={() => handleDelete(u._id)}
-                              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Cards */}
-              <div className="lg:hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                 {filteredUsers.map((u) => (
-                  <div key={u._id} className="border-b border-gray-200 p-6">
+                  <div
+                    key={u._id}
+                    className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow bg-white"
+                  >
+                    {/* User Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <img
-                            src={
-                              u.image
-                                ? u.image
-                                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                            }
-                            alt="User"
-                            className="w-15 h-15 rounded-full"
-                          />
+                        <div className="relative">
+                          <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center overflow-hidden">
+                            <img
+                              src={
+                                u.image
+                                  ? u.image
+                                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                              }
+                              alt={u.username}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          {u._id === user?.id && (
+                            <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                              You
+                            </div>
+                          )}
                         </div>
                         <div className="ml-4">
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-bold text-gray-900 text-lg">
                             {u.username}
                           </h3>
                           <p className="text-sm text-gray-600">{u.email}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            ID: {u._id.slice(0, 8)}...
-                          </p>
                         </div>
                       </div>
-                      <span className={roleBadge(u.role)}>
-                        <RoleIcon role={u.role} />
-                        {u.role}
-                      </span>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className={roleBadge(u.role)}>
+                          <RoleIcon role={u.role} />
+                          {u.role}
+                        </span>
+                        <div className="text-xs text-gray-500 uppercase">
+                          ID: {u._id.slice(0, 8)}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Change Role
-                        </label>
-                        {u._id === user?.id ? (
-                          <div className="text-sm text-gray-500">
-                            (You cannot change your own role)
-                          </div>
-                        ) : (
-                          <RoleSelector userId={u._id} currentRole={u.role} />
-                        )}
+                    {/* User Stats */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CreditCard className="w-4 h-4 text-blue-600" />
+                          <span className="text-xs font-medium text-gray-600">
+                            Balance
+                          </span>
+                        </div>
+                        <p className="text-lg font-bold text-gray-900">
+                          ${u.balance || 0}
+                        </p>
                       </div>
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Users className="w-4 h-4 text-green-600" />
+                          <span className="text-xs font-medium text-gray-600">
+                            Work Submitted
+                          </span>
+                        </div>
+                        <p className="text-lg font-bold text-gray-900">
+                          ${u.WorkSubmittedAmount || 0}
+                        </p>
+                      </div>
+                    </div>
 
-                      {u._id !== user?.id && (
+                    {/* Role Management */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Change Role
+                      </label>
+                      {u._id === user?.id ? (
+                        <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                          You cannot change your own role
+                        </div>
+                      ) : (
+                        <RoleSelector userId={u._id} currentRole={u.role} />
+                      )}
+                    </div>
+
+                    {/* Password Reset */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="flex items-center gap-2">
+                          <Key className="w-4 h-4" />
+                          <span>Password Reset</span>
+                        </div>
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="New password"
+                          value={passwordReset[u._id] || ""}
+                          onChange={(e) =>
+                            setPasswordReset({
+                              ...passwordReset,
+                              [u._id]: e.target.value,
+                            })
+                          }
+                          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          onClick={() => handlePasswordReset(u._id)}
+                          className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 text-sm font-medium transition-colors"
+                          disabled={
+                            !passwordReset[u._id] ||
+                            passwordReset[u._id].length < 6
+                          }
+                        >
+                          Reset
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="pt-4 border-t border-gray-100">
+                      {u._id === user?.id ? (
+                        <div className="text-center text-sm text-gray-500 py-2">
+                          This is your account
+                        </div>
+                      ) : (
                         <button
                           onClick={() => handleDelete(u._id)}
                           className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
@@ -433,29 +445,32 @@ const AdminPanel = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600">
+                  <div>
+                    Showing{" "}
+                    <span className="font-semibold">
+                      {filteredUsers.length}
+                    </span>{" "}
+                    of <span className="font-semibold">{users.length}</span>{" "}
+                    users
+                  </div>
+                  <div className="mt-2 sm:mt-0">
+                    {search && (
+                      <button
+                        onClick={() => setSearch("")}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        Clear search
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </>
           )}
-
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600">
-              <div>
-                Showing{" "}
-                <span className="font-semibold">{filteredUsers.length}</span> of{" "}
-                <span className="font-semibold">{users.length}</span> users
-              </div>
-              <div className="mt-2 sm:mt-0">
-                {search && (
-                  <button
-                    onClick={() => setSearch("")}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    Clear search
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
