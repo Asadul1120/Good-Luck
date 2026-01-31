@@ -96,6 +96,7 @@ const Header = () => {
           {isAdmin && (
             <nav className="hidden lg:flex items-center space-x-8">
               <Link to="/adminDashboard">Admin Dashboard</Link>
+              <Link to="/adminPayment">Admin Payment</Link>
               <Link to="/depositRequests">Deposit Requests</Link>
               <Link to="/adminPanel">Admin Panel</Link>
               <Link to="/addUser">Add User</Link>
@@ -154,6 +155,7 @@ const Header = () => {
             {isAdmin && (
               <>
                 <Link to="/adminDashboard">Admin Dashboard</Link>
+                <Link to="/adminPayment">Admin Payment</Link>
                 <Link to="/depositRequests">User Deposit </Link>
                 <Link to="/adminPanel">Admin Panel</Link>
                 <Link to="/addUser">Add User</Link>

@@ -5,7 +5,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from "../src/api/axios";
 import { useAuth } from "../context/AuthContext";
 
-
 function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -200,6 +199,11 @@ function Dashboard() {
         >
           Slip Payment
         </Link>
+      </div>
+      <div>
+        <marquee behavior="scroll" direction="left">
+          আসসালামু আলাইকুম, সবাইকে আমাদের পক্ষ থেকে জানাই শুভেচ্ছ ও অভিনন্দন।❤️
+        </marquee>
       </div>
 
       {/* Filters Section */}
