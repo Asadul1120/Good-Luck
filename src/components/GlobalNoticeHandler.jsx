@@ -3,8 +3,10 @@ import { useAuth } from "../context/AuthContext";
 import NoticeModal from "../components/NoticeModal";
 
 const GlobalNoticeHandler = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, features  } = useAuth();
   const [showNotice, setShowNotice] = useState(false);
+
+  console.log(features);
 
   const timerRef = useRef(null);
   const countRef = useRef(0);

@@ -90,6 +90,8 @@ export const AuthProvider = ({ children }) => {
         NIGHT_SLIP: res.data.nightSlip,
         SPECIAL_SLIP: res.data.specialSlip,
         SLIP_PAYMENT: res.data.slipPayment,
+        NOTICE: res.data.noticeEnabled,
+
       });
     } catch (error) {
       setFeatures(null);
