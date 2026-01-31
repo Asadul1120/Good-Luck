@@ -183,18 +183,19 @@ const AdminDashboard = () => {
             </label>
             <DatePicker
               selected={startDate}
-              onChange={(date) => {
-                setStartDate(date);
-                if (date > endDate) setEndDate(date);
-              }}
-              maxDate={endDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              maxDate={endDate || new Date()}
               dateFormat="dd/MM/yyyy"
-              className="w-full px-4 py-2 border rounded-lg text-sm
-  focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm
+    focus:outline-none focus:ring-2 focus:ring-blue-500"
+              wrapperClassName="w-full"
               showYearDropdown
-              placeholderText="DD/MM/YYYY"
-              yearDropdownItemNumber={50}
+              yearDropdownItemNumber={20}
               scrollableYearDropdown
+              isClearable
             />
           </div>
 
@@ -206,14 +207,18 @@ const AdminDashboard = () => {
             <DatePicker
               selected={endDate}
               onChange={(date) => setEndDate(date)}
-              minDate={startDate}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate || null}
               dateFormat="dd/MM/yyyy"
-              className="w-full px-4 py-2 border rounded-lg text-sm
-  focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm
+    focus:outline-none focus:ring-2 focus:ring-blue-500"
+              wrapperClassName="w-full"
               showYearDropdown
-              yearDropdownItemNumber={50}
+              yearDropdownItemNumber={20}
               scrollableYearDropdown
-              placeholderText="DD/MM/YYYY"
+              isClearable
             />
           </div>
         </div>

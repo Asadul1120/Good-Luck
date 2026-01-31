@@ -213,7 +213,7 @@ const AdminMedicalCenters = () => {
         (!filters.maxPrice || c.price <= Number(filters.maxPrice));
 
       const matchesQuota =
-        !filters.minQuota || c.quota >= Number(filters.minQuota);
+        !filters.minQuota || Number(c.quota) >= Number(filters.minQuota);
 
       return (
         matchesSearch &&
@@ -662,3 +662,8 @@ const AdminMedicalCenters = () => {
 };
 
 export default AdminMedicalCenters;
+
+
+
+
+

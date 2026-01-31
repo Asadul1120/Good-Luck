@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="footer  py-4">
       <marquee behavior="scroll" direction="left">
         For assistance with payment approvals and slip cancellations, please
-        contact us at: 📞 01629412410 🔄
+        contact us at: 📞01627151085 🔄
       </marquee>
     </footer>
   );

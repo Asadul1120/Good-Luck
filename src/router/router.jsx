@@ -33,6 +33,7 @@ import AddPaymentMethod from "../pages/AdminPages/AddPaymentMethod";
 ========================= */
 
 import { useAuth } from "../context/AuthContext";
+import AdminPayment from "../pages/AdminPages/AdminPayment";
 
 const NormalSlipPage = () => {
   const { features, loading } = useAuth();
@@ -209,6 +210,15 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AdminDashboard />
+          </AdminRoute>
+        ),
+      },
+      ,
+      {
+        path: "/adminPayment",
+        element: (
+          <AdminRoute>
+            <AdminPayment />
           </AdminRoute>
         ),
       },

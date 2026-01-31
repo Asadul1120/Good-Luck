@@ -99,13 +99,13 @@ export const AuthProvider = ({ children }) => {
   // 🔁 App load
   useEffect(() => {
     const init = async () => {
-     const user =  await fetchUser();
-  
+      const user = await fetchUser();
+
       await fetchFeatures();
       setLoading(false);
     };
     init();
-  }, [ ]);
+  }, []);
 
   // 🔐 LOGIN
   const login = async (username, password) => {
@@ -122,7 +122,12 @@ export const AuthProvider = ({ children }) => {
 
   // 🚪 LOGOUT
   const logout = async () => {
+    if (user?._id) {
+      // 🔥 notice count reset (IMPORTANT)
+      sessionStorage.removeItem(`notice_count_${user._id}`);
+    }
     await axios.post("/users/logout");
+
     setUser(null);
   };
 
