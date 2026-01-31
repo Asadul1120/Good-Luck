@@ -355,15 +355,49 @@ const AdminPayment = () => {
 
         {/* TABLE SECTION */}
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
-          <div className="px-4 md:px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg md:text-xl font-bold text-gray-800">
-              Payment Links ({filteredData.length})
-            </h3>
-            <p className="text-gray-600 text-sm mt-1">
-              Showing entries from {startDate.toLocaleDateString()} to{" "}
-              {endDate.toLocaleDateString()}
-            </p>
-          </div>
+
+<div className="px-4 md:px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+  <div>
+    <h3 className="text-lg md:text-xl font-bold text-gray-800">
+      Payment Links ({filteredData.length})
+    </h3>
+    <p className="text-gray-600 text-sm mt-1">
+      Showing entries from {startDate.toLocaleDateString()} to{" "}
+      {endDate.toLocaleDateString()}
+    </p>
+  </div>
+
+  <button
+    disabled={filteredData.length === 0}
+    onClick={async () => {
+      if (
+        !window.confirm(
+          "⚠️ This action will permanently delete ALL payment links.\nAre you absolutely sure?"
+        )
+      )
+        return;
+
+      try {
+        await axios.delete("/admin-payment-links");
+        setData([]);
+        alert("✅ All payment links deleted successfully");
+      } catch (err) {
+        alert("❌ Failed to delete all payment links");
+        console.error(err);
+      }
+    }}
+    className={`px-4 py-2 rounded-lg font-semibold text-white transition
+      ${
+        filteredData.length === 0
+          ? "bg-red-300 cursor-not-allowed"
+          : "bg-red-600 hover:bg-red-700"
+      }`}
+  >
+    Delete All
+  </button>
+</div>
+
+      
 
           {/* Mobile Cards View */}
           <div className="md:hidden space-y-4 p-4">
@@ -375,7 +409,7 @@ const AdminPayment = () => {
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-2">
                     <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">
-                      #{i + 1}
+                      {i + 1}
                     </span>
                     <span className="font-bold text-gray-800">
                       {item.centerName}
