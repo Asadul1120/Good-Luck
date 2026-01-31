@@ -9,13 +9,20 @@ const GlobalNoticeHandler = () => {
   const timerRef = useRef(null);
   const countRef = useRef(0);
 
-  const MAX_SHOW = 2;      // 👈 মোট ২ বার
+  const MAX_SHOW = 2;      // 👈 মোট কতবার দেখাবে
   const INTERVAL = 5000;  // 👈 5 seconds
 
   useEffect(() => {
-    if (!isAuthenticated || !user?._id) return;
+    // ❌ যদি login না থাকে বা admin হয় → কিছুই করবে না
+    if (
+      !isAuthenticated ||
+      !user?._id ||
+      user.role === "admin"
+    ) {
+      return;
+    }
 
-    // reset on fresh login
+    // fresh login হলে reset
     countRef.current = 0;
 
     const startTimer = () => {
@@ -34,7 +41,7 @@ const GlobalNoticeHandler = () => {
       }, INTERVAL);
     };
 
-    // 🔁 start first timer after login
+    // 🔁 first notice (login এর 5s পর)
     startTimer();
 
     return () => {
@@ -42,7 +49,7 @@ const GlobalNoticeHandler = () => {
       timerRef.current = null;
       countRef.current = 0;
     };
-  }, [isAuthenticated, user?._id]);
+  }, [isAuthenticated, user]);
 
   const handleClose = () => {
     setShowNotice(false);
