@@ -91,6 +91,7 @@ export const AuthProvider = ({ children }) => {
         SPECIAL_SLIP: res.data.specialSlip,
         SLIP_PAYMENT: res.data.slipPayment,
         NOTICE: res.data.noticeEnabled,
+        MARQUEE: res.data.marqueeEnabled,
 
       });
     } catch (error) {

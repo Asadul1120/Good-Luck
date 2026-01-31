@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, features } = useAuth();
   const userId = user?._id;
   const today = new Date();
   const [startDate, setStartDate] = useState(today);
@@ -51,6 +51,22 @@ function Dashboard() {
 
     fetchData();
   }, [userId]);
+
+  // marquee text
+  const [marqueeText1, setMarqueeText1] = useState("");
+
+  useEffect(() => {
+    const loadMarquee = async () => {
+      try {
+        const res = await axios.get("/marquee");
+        setMarqueeText1(res.data.text1 || "");
+      } catch (err) {
+        console.error("Failed to load marquee");
+      }
+    };
+
+    loadMarquee();
+  }, []);
 
   const filteredData = useMemo(() => {
     return tableData.filter((row) => {
@@ -201,9 +217,14 @@ function Dashboard() {
         </Link>
       </div>
       <div>
-        <marquee behavior="scroll" direction="left">
-          আসসালামু আলাইকুম, সবাইকে আমাদের পক্ষ থেকে জানাই শুভেচ্ছ ও অভিনন্দন।❤️
-        </marquee>
+        {features?.MARQUEE && (
+          <div className="mb-3">
+            <marquee behavior="scroll" direction="left">
+              {marqueeText1}
+              
+            </marquee>
+          </div>
+        )}
       </div>
 
       {/* Filters Section */}

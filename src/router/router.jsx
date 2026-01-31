@@ -34,6 +34,7 @@ import AddPaymentMethod from "../pages/AdminPages/AddPaymentMethod";
 
 import { useAuth } from "../context/AuthContext";
 import AdminPayment from "../pages/AdminPages/AdminPayment";
+import AdminNoticeEditor from "../components/AdminNoticeEditor";
 
 const NormalSlipPage = () => {
   const { features, loading } = useAuth();
@@ -213,7 +214,14 @@ const router = createBrowserRouter([
           </AdminRoute>
         ),
       },
-      ,
+      {
+        path: "/Notice",
+        element: (
+          <AdminRoute>
+            <AdminNoticeEditor />
+          </AdminRoute>
+        ),
+      },
       {
         path: "/adminPayment",
         element: (

@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import FeatureControl from "../../components/FeatureControl";
 
+
 const isValidDate = (date) => {
   return date instanceof Date && !isNaN(date);
 };
@@ -107,6 +108,7 @@ const AdminDashboard = () => {
       </h1>
 
       <FeatureControl />
+     
 
       {/* FILTER BAR */}
       <div className="mb-5 bg-white p-4 rounded-xl shadow">

@@ -99,6 +99,7 @@ const Header = () => {
               <Link to="/adminPayment">Admin Payment</Link>
               <Link to="/depositRequests">Deposit Requests</Link>
               <Link to="/adminPanel">Admin Panel</Link>
+              <Link to="/Notice">Notice </Link>
               <Link to="/addUser">Add User</Link>
               <Link to="/addMedicalCenter">Add Medical Center</Link>
               <Link to="/profile">Profile</Link>
@@ -158,6 +159,7 @@ const Header = () => {
                 <Link to="/adminPayment">Admin Payment</Link>
                 <Link to="/depositRequests">User Deposit </Link>
                 <Link to="/adminPanel">Admin Panel</Link>
+                <Link to="/Notice">Notice </Link>
                 <Link to="/addUser">Add User</Link>
                 <Link to="/addMedicalCenter">Add Medical Center</Link>
                 <Link to="/profile">Profile</Link>

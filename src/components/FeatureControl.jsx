@@ -32,7 +32,7 @@ const FeatureControl = () => {
         [key]: updatedValue,
       }));
 
-      refreshFeatures();
+      refreshFeatures(); // 🔄 frontend global update
     } finally {
       setSaving(false);
     }
@@ -45,37 +45,28 @@ const FeatureControl = () => {
       </div>
     );
 
+  // 🔔 NOTICE যোগ করা হয়েছে
   const featureList = [
     { key: "normalSlip", label: "Normal Slip" },
     { key: "nightSlip", label: "Night Slip" },
     { key: "specialSlip", label: "Special Slip" },
     { key: "slipPayment", label: "Slip Payment" },
+    { key: "noticeEnabled", label: "Notice Popup" },
+    { key: "marqueeEnabled", label: "Heade Line" },
   ];
 
   return (
     <div className="mb-5 bg-white p-3 rounded-xl shadow">
-      <div
-        className="
-          flex items-center gap-3
-          flex-nowrap overflow-x-auto
-          text-xs
-        "
-      >
+      <div className="flex items-center gap-3 flex-nowrap overflow-x-auto text-xs">
         {featureList.map((item) => {
           const enabled = features[item.key];
 
           return (
             <div
               key={item.key}
-              className="
-                flex items-center gap-1
-                whitespace-nowrap
-                border px-2 py-1 rounded-md
-              "
+              className="flex items-center gap-1 whitespace-nowrap border px-2 py-1 rounded-md"
             >
-              <span className="font-semibold text-gray-700">
-                {item.label}
-              </span>
+              <span className="font-semibold text-gray-700">{item.label}</span>
 
               <button
                 disabled={saving}

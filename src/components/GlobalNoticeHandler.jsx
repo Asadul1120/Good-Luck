@@ -3,23 +3,25 @@ import { useAuth } from "../context/AuthContext";
 import NoticeModal from "../components/NoticeModal";
 
 const GlobalNoticeHandler = () => {
-  const { user, isAuthenticated, features  } = useAuth();
+  const { user, isAuthenticated, features } = useAuth();
   const [showNotice, setShowNotice] = useState(false);
-
-  console.log(features);
 
   const timerRef = useRef(null);
   const countRef = useRef(0);
 
-  const MAX_SHOW = 2;      // 👈 মোট কতবার দেখাবে
-  const INTERVAL = 5000;  // 👈 5 seconds
+  const MAX_SHOW = 2; // 👈 মোট ২ বার
+  const INTERVAL = 5000; // 👈 5 seconds
 
   useEffect(() => {
-    // ❌ যদি login না থাকে বা admin হয় → কিছুই করবে না
+    // ❌ notice দেখাবে না যদি:
+    // - login না থাকে
+    // - admin user
+    // - admin panel থেকে notice OFF
     if (
       !isAuthenticated ||
       !user?._id ||
-      user.role === "admin"
+      user.role === "admin" ||
+      features?.NOTICE === false
     ) {
       return;
     }
@@ -51,7 +53,7 @@ const GlobalNoticeHandler = () => {
       timerRef.current = null;
       countRef.current = 0;
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, features]); // 👈 features dependency জরুরি
 
   const handleClose = () => {
     setShowNotice(false);

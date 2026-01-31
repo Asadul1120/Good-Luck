@@ -1,17 +1,46 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "../src/api/axios";
 
 const NoticeModal = ({ open, onClose }) => {
+  const [notice, setNotice] = useState(null);
+
+  // 🔁 load notice from backend
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchNotice = async () => {
+      try {
+        const res = await axios.get("/notice");
+
+        // admin OFF করলে modal দেখাবে না
+        if (!res.data || res.data.active === false) {
+          onClose();
+          return;
+        }
+        console.log(res.data);
+
+        setNotice(res.data);
+      } catch (err) {
+        console.error("Failed to load notice");
+        onClose();
+      }
+    };
+
+    fetchNotice();
+  }, [open, onClose]);
+
+  // ⏱️ auto close
   useEffect(() => {
     if (!open) return;
 
     const timer = setTimeout(() => {
       onClose();
-    }, 90000);
+    }, 90000); // 90s
 
     return () => clearTimeout(timer);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !notice) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-3">
@@ -19,33 +48,17 @@ const NoticeModal = ({ open, onClose }) => {
         {/* Header */}
         <div className="bg-red-500 px-4 py-3 sm:px-6 sm:py-4">
           <h2 className="text-white text-base sm:text-lg font-semibold">
-            Important Notice
+            {notice.title || "Important Notice"}
           </h2>
         </div>
 
-        {/* Body */}
-        <div className="px-4 py-4 sm:px-6 sm:py-5 text-gray-800 space-y-3 text-sm sm:text-base leading-relaxed">
-          <p>আসসালামু আলাইকুম,</p>
-
-          <p>সম্মানিত গ্রাহকদের জানানো যাচ্ছে,</p>
-
-          <p className="font-semibold text-base sm:text-lg">
-            All Special Slip — 1600/-
-          </p>
-
-          <p>Dhaka All Normal Slip — 100/-</p>
-          <p>Dhaka All Normal Night — 100/-</p>
-
-          <p className="text-gray-600 text-xs sm:text-sm">
-            All slip delivered within 5 minutes
-          </p>
-
-          <p className="font-medium">Only Link 320/-</p>
-
-          <hr className="my-3" />
-
-          <p>ধন্যবাদ।</p>
-        </div>
+        {/* Body (HTML from admin) */}
+        <div
+          className="px-4 py-4 sm:px-6 sm:py-5 text-gray-800 space-y-3 text-sm sm:text-base leading-relaxed"
+          dangerouslySetInnerHTML={{
+            __html: notice.messageHtml || "<p>No notice</p>",
+          }}
+        />
 
         {/* Footer */}
         <div className="bg-gray-200 px-4 py-3 sm:px-6 sm:py-4 flex justify-end">
