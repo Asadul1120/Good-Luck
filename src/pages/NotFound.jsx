@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import notfound from "../assets/NotFound.png";
+import notfound from "../assets/NotFound.jpeg";
 
 const NotFound = () => {
   return (

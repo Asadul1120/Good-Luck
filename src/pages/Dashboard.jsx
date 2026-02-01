@@ -121,14 +121,16 @@ function Dashboard() {
     switch (statusLower) {
       case "complete":
         return "bg-green-600";
-      case "approved":
-        return "bg-blue-600";
       case "cancelled":
         return "bg-red-600";
       case "no-balance":
         return "bg-orange-600";
       case "processing":
         return "bg-cyan-600";
+      case "processing-link":
+        return "bg-blue-600";
+      case "no-queue":
+        return "bg-purple-600";
       default:
         return "bg-yellow-500";
     }
@@ -145,6 +147,25 @@ function Dashboard() {
         return status?.toUpperCase();
     }
   }, []);
+
+  const handleRecheckStatus = async (slipId) => {
+    try {
+      const res = await axios.patch(`/slips/${slipId}/recheck-status`);
+
+      // 🔄 UI update
+      setTableData((prev) =>
+        prev.map((item) =>
+          item._id === slipId
+            ? { ...item, status: res.data.data.newStatus }
+            : item,
+        ),
+      );
+
+      alert("Status updated successfully");
+    } catch (err) {
+      alert(err.response?.data?.message || "Status update failed");
+    }
+  };
 
   // সব ডিভাইসে একই headers রাখছি
   const tableHeaders = [
@@ -221,7 +242,6 @@ function Dashboard() {
           <div className="mb-3">
             <marquee behavior="scroll" direction="left">
               {marqueeText1}
-              
             </marquee>
           </div>
         )}
@@ -384,17 +404,52 @@ function Dashboard() {
                     <td className="border px-2 py-1.5 sm:px-4 sm:py-3">
                       <div className="flex flex-col gap-1 items-center">
                         <button
-                          onClick={() => {
-                            if (row.status !== "complete") return; // ⛔ do nothing
+                          onClick={async () => {
+                            // 🔐 COMPLETE → click count + open payment link
+                            if (row.status === "complete") {
+                              setClickCounts((prev) => ({
+                                ...prev,
+                                [row._id]: (prev[row._id] || 0) + 1,
+                              }));
 
-                            // 🔢 increase click count
-                            setClickCounts((prev) => ({
-                              ...prev,
-                              [row._id]: (prev[row._id] || 0) + 1,
-                            }));
+                              if (row.paymentLink) {
+                                window.open(row.paymentLink, "_blank");
+                              }
+                              return;
+                            }
 
-                            // 🔗 open URL
-                            window.open(row.paymentLink, "_blank");
+                            // ⛔ locked statuses → no update
+                            if (
+                              row.status === "processing" ||
+                              row.status === "processing-link" ||
+                              row.status === "cancelled" ||
+                              row.status === "other"
+                            ) {
+                              return;
+                            }
+
+                            // 🔄 only no-balance reaches here
+                            try {
+                              const res = await axios.patch(
+                                `/slips/${row._id}/user-update-status`,
+                              );
+
+                              const newStatus = res.data.data.newStatus;
+
+                              // 🔄 update UI
+                              setTableData((prev) =>
+                                prev.map((item) =>
+                                  item._id === row._id
+                                    ? { ...item, status: newStatus }
+                                    : item,
+                                ),
+                              );
+                            } catch (err) {
+                              alert(
+                                err.response?.data?.message ||
+                                  "Status update failed",
+                              );
+                            }
                           }}
                           className={`inline-block px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs rounded text-white font-semibold cursor-pointer ${getStatusColor(
                             row.status,
@@ -403,8 +458,9 @@ function Dashboard() {
                           {getStatusText(row.status)}
                         </button>
 
+                        {/* 💬 Comment tooltip */}
                         {row.comments && (
-                          <span className="relative group text-[11px]  text-gray-600">
+                          <span className="relative group text-[11px] text-gray-600">
                             {row.comments.slice(0, 10)}...
                             <span className="absolute z-50 hidden group-hover:block bg-gray-200 text-red-500 top-0 left-12 mt-1 px-2 py-1 rounded text-xs max-w-[300px] truncate whitespace-nowrap shadow-lg">
                               {row.comments}
@@ -412,13 +468,14 @@ function Dashboard() {
                           </span>
                         )}
 
-                        {/* 🔢 Click count (only shows after click) */}
-                        {clickCounts[row._id] > 0 && (
-                          <span className="text-[11px] text-gray-500">
-                            Clicked: {clickCounts[row._id]}
-                            {clickCounts[row._id] > 1 ? "s" : ""}
-                          </span>
-                        )}
+                        {/* 🔢 Click count (only for COMPLETE) */}
+                        {clickCounts[row._id] > 0 &&
+                          row.status === "complete" && (
+                            <span className="text-[11px] text-gray-500">
+                              Clicked: {clickCounts[row._id]}
+                              {clickCounts[row._id] > 1 ? "s" : ""}
+                            </span>
+                          )}
                       </div>
                     </td>
 

@@ -301,20 +301,7 @@ function UserSlipPayments() {
                   <td className="border px-2 py-2">{row.email || "-"}</td>
                   <td className="border px-2 py-2">{row.phone || "-"}</td>
 
-                  <td className="border px-2 py-2 text-blue-600">
-                    {row.status === "complete" ? (
-                      "None"
-                    ) : (
-                      <a
-                        href={row.playLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-semibold hover:underline"
-                      >
-                        Open
-                      </a>
-                    )}
-                  </td>
+                  <td className="border px-2 py-2 ">None</td>
                 </tr>
               ))
             ) : (
