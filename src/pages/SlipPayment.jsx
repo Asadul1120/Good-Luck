@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const SlipPayment = () => {
   const [paymentLink, setPaymentLink] = useState("");
   const [remarks, setRemarks] = useState("");
+  
 
   const navigate = useNavigate();
 

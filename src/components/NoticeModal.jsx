@@ -17,7 +17,6 @@ const NoticeModal = ({ open, onClose }) => {
           onClose();
           return;
         }
-        console.log(res.data);
 
         setNotice(res.data);
       } catch (err) {

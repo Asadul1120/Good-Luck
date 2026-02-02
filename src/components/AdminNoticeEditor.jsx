@@ -1,164 +1,3 @@
-// import { useEffect, useRef, useState } from "react";
-// import axios from "../src/api/axios";
-
-// const AdminNoticeEditor = () => {
-//   const editorRef = useRef(null);
-
-//   const [title, setTitle] = useState("Important Notice");
-//   const [active, setActive] = useState(true);
-//   const [saving, setSaving] = useState(false);
-
-//   // 🔁 Load notice
-//   useEffect(() => {
-//     const loadNotice = async () => {
-//       try {
-//         const res = await axios.get("/notice");
-
-//         if (res.data) {
-//           setTitle(res.data.title || "Important Notice");
-//           setActive(res.data.active !== false);
-
-//           if (editorRef.current) {
-//             editorRef.current.innerHTML = res.data.messageHtml || "";
-//           }
-//         }
-//       } catch (err) {
-//         console.error("Failed to load notice", err);
-//       }
-//     };
-
-//     loadNotice();
-//   }, []);
-
-//   // 🖊️ formatting command
-//   const exec = (cmd) => {
-//     document.execCommand(cmd, false, null);
-//   };
-
-//   // 💾 Save notice
-//   const saveNotice = async () => {
-//     setSaving(true);
-//     try {
-//       await axios.patch("/notice", {
-//         title,
-//         active,
-//         messageHtml: editorRef.current.innerHTML,
-//       });
-//       alert("✅ Notice saved successfully");
-//     } catch (err) {
-//       alert("❌ Failed to save notice");
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-
-//   return (
-//     <div className="max-w-4xl mx-auto mt-6">
-//       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-//         {/* Header */}
-//         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500">
-//           <h2 className="text-white text-lg font-bold flex items-center gap-2">
-//             🔔 Admin Notice Editor
-//           </h2>
-//           <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-full">
-//             Live Notice
-//           </span>
-//         </div>
-
-//         {/* Body */}
-//         <div className="p-6 space-y-4">
-//           {/* Title */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-600 mb-1">
-//               Notice Title
-//             </label>
-//             <input
-//               value={title}
-//               onChange={(e) => setTitle(e.target.value)}
-//               className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-//               placeholder="Notice title"
-//             />
-//           </div>
-
-//           {/* Toolbar */}
-//           <div className="flex gap-2 flex-wrap">
-//             <button onClick={() => exec("bold")} className="tool-btn">
-//               B
-//             </button>
-//             <button onClick={() => exec("italic")} className="tool-btn">
-//               I
-//             </button>
-//             <button onClick={() => exec("underline")} className="tool-btn">
-//               U
-//             </button>
-//             <button
-//               onClick={() => exec("insertUnorderedList")}
-//               className="tool-btn"
-//             >
-//               • List
-//             </button>
-//             <button
-//               onClick={() => exec("insertOrderedList")}
-//               className="tool-btn"
-//             >
-//               1. List
-//             </button>
-//           </div>
-
-//           {/* Editor */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-600 mb-1">
-//               Notice Content
-//             </label>
-//             <div
-//               ref={editorRef}
-//               contentEditable
-//               className="border rounded-lg p-4 min-h-[200px] text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-//             />
-//           </div>
-//         </div>
-
-//         {/* Footer */}
-//         <div className="flex justify-end px-6 py-4 bg-gray-50 border-t">
-//           <button
-//             disabled={saving}
-//             onClick={saveNotice}
-//             className={`px-6 py-2 rounded-lg text-white text-sm font-semibold transition ${
-//               saving
-//                 ? "bg-gray-400 cursor-not-allowed"
-//                 : "bg-indigo-600 hover:bg-indigo-700"
-//             }`}
-//           >
-//             {saving ? "Saving..." : "Save Notice"}
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Styles */}
-//       <style>
-//         {`
-//           .tool-btn {
-//             border: 1px solid #d1d5db;
-//             padding: 6px 10px;
-//             border-radius: 6px;
-//             font-size: 13px;
-//             background: #f9fafb;
-//             cursor: pointer;
-//           }
-//           .tool-btn:hover {
-//             background: #e5e7eb;
-//           }
-//         `}
-//       </style>
-//     </div>
-//   );
-// };
-
-// export default AdminNoticeEditor;
-
-
-
-
 import { useEffect, useRef, useState } from "react";
 import axios from "../src/api/axios";
 
@@ -187,8 +26,7 @@ const AdminNoticeEditor = () => {
         if (noticeRes.data) {
           setTitle(noticeRes.data.title || "Important Notice");
           if (editorRef.current) {
-            editorRef.current.innerHTML =
-              noticeRes.data.messageHtml || "";
+            editorRef.current.innerHTML = noticeRes.data.messageHtml || "";
           }
         }
 
@@ -259,11 +97,27 @@ const AdminNoticeEditor = () => {
           />
 
           <div className="flex gap-2 flex-wrap">
-            <button onClick={() => exec("bold")} className="tool-btn">B</button>
-            <button onClick={() => exec("italic")} className="tool-btn">I</button>
-            <button onClick={() => exec("underline")} className="tool-btn">U</button>
-            <button onClick={() => exec("insertUnorderedList")} className="tool-btn">• List</button>
-            <button onClick={() => exec("insertOrderedList")} className="tool-btn">1. List</button>
+            <button onClick={() => exec("bold")} className="tool-btn">
+              B
+            </button>
+            <button onClick={() => exec("italic")} className="tool-btn">
+              I
+            </button>
+            <button onClick={() => exec("underline")} className="tool-btn">
+              U
+            </button>
+            <button
+              onClick={() => exec("insertUnorderedList")}
+              className="tool-btn"
+            >
+              • List
+            </button>
+            <button
+              onClick={() => exec("insertOrderedList")}
+              className="tool-btn"
+            >
+              1. List
+            </button>
           </div>
 
           <div
@@ -278,9 +132,7 @@ const AdminNoticeEditor = () => {
             onClick={saveNotice}
             disabled={savingNotice}
             className={`px-6 py-2 rounded-lg text-white text-sm font-semibold ${
-              savingNotice
-                ? "bg-gray-400"
-                : "bg-indigo-600 hover:bg-indigo-700"
+              savingNotice ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
             }`}
           >
             {savingNotice ? "Saving..." : "Save Notice"}

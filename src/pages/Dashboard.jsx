@@ -148,25 +148,6 @@ function Dashboard() {
     }
   }, []);
 
-  const handleRecheckStatus = async (slipId) => {
-    try {
-      const res = await axios.patch(`/slips/${slipId}/recheck-status`);
-
-      // 🔄 UI update
-      setTableData((prev) =>
-        prev.map((item) =>
-          item._id === slipId
-            ? { ...item, status: res.data.data.newStatus }
-            : item,
-        ),
-      );
-
-      alert("Status updated successfully");
-    } catch (err) {
-      alert(err.response?.data?.message || "Status update failed");
-    }
-  };
-
   // সব ডিভাইসে একই headers রাখছি
   const tableHeaders = [
     "S.N",

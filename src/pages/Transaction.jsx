@@ -265,7 +265,7 @@ const Transaction = () => {
                       </td>
                       <td className="border px-4 py-2">{row.created}</td>
                       <td className="border px-4 py-2 uppercase">
-                        {row.id.slice(0, 6)}
+                        {row.id.slice(-6)}
                       </td>
                       <td className="border px-4 py-2">{row.slip}</td>
                       <td className="border px-4 py-2">{row.center}</td>
