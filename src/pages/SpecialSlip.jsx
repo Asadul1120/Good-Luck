@@ -104,22 +104,45 @@ const SpecialSlip = () => {
   };
 
   const validatePassportValidity = (issueDate, expiryDate) => {
-    if (!issueDate || !expiryDate) return false;
+    if (!issueDate || !expiryDate) return { isValid: false, error: "" };
 
     const issue = new Date(issueDate);
     const expiry = new Date(expiryDate);
+    const today = new Date();
 
     // Expiry must be after issue
-    if (expiry <= issue) return false;
+    if (expiry <= issue) {
+      return {
+        isValid: false,
+        error: "Passport expiry must be after issue date",
+      };
+    }
 
-    // Minimum allowed expiry = Issue date + 5 years - 1 day
-    const minExpiry = new Date(
-      issue.getFullYear() + 5,
-      issue.getMonth(),
-      issue.getDate() - 1,
-    );
+    // Condition 1: Minimum 5 years validity from issue date
+    const minExpiryDate = new Date(issue);
+    minExpiryDate.setFullYear(issue.getFullYear() + 5);
+    minExpiryDate.setDate(minExpiryDate.getDate() - 1); // 5 years - 1 day
 
-    return expiry >= minExpiry;
+    if (expiry < minExpiryDate) {
+      return {
+        isValid: false,
+        error: "Passport validity must be at least 5 years",
+      };
+    }
+
+    // Condition 2: Minimum 6 months and 21 days from today
+    const minValidDate = new Date(today);
+    minValidDate.setMonth(today.getMonth() + 6);
+    minValidDate.setDate(today.getDate() + 21);
+
+    if (expiry < minValidDate) {
+      return {
+        isValid: false,
+        error: "Passport Expiry Date must be greater than 6 Months and 21 Days",
+      };
+    }
+
+    return { isValid: true, error: "" };
   };
 
   const validateForm = () => {
@@ -159,16 +182,15 @@ const SpecialSlip = () => {
       }
     }
 
-    // Passport validity validation - must be at least 5 years
+    // Passport validity validation
     if (formData.passportIssueDate && formData.passportExpiryDate) {
-      if (
-        !validatePassportValidity(
-          formData.passportIssueDate,
-          formData.passportExpiryDate,
-        )
-      ) {
-        newErrors.passportExpiryDate =
-          "Passport validity must be at least 5 years";
+      const validationResult = validatePassportValidity(
+        formData.passportIssueDate,
+        formData.passportExpiryDate,
+      );
+
+      if (!validationResult.isValid) {
+        newErrors.passportExpiryDate = validationResult.error;
       }
     }
 
@@ -195,19 +217,19 @@ const SpecialSlip = () => {
     }
 
     // Validate passport validity before form submission
-    if (
-      formData.passportIssueDate &&
-      formData.passportExpiryDate &&
-      !validatePassportValidity(
+    if (formData.passportIssueDate && formData.passportExpiryDate) {
+      const validationResult = validatePassportValidity(
         formData.passportIssueDate,
         formData.passportExpiryDate,
-      )
-    ) {
-      setErrors((prev) => ({
-        ...prev,
-        passportExpiryDate: "Passport validity must be at least 5 years",
-      }));
-      return;
+      );
+
+      if (!validationResult.isValid) {
+        setErrors((prev) => ({
+          ...prev,
+          passportExpiryDate: validationResult.error,
+        }));
+        return;
+      }
     }
 
     if (!validateForm()) return;
@@ -321,8 +343,8 @@ const SpecialSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Bangladesh"].map((item) => (
-                  <option key={item} value={item}>
+                {["Bangladesh"].map((item, index) => (
+                  <option key={index} value={item}>
                     {item}
                   </option>
                 ))}
@@ -348,8 +370,8 @@ const SpecialSlip = () => {
                   "Rajshahi",
                   "Sherpur",
                   "Sylhet",
-                ].map((item) => (
-                  <option key={item} value={item}>
+                ].map((item, index) => (
+                  <option key={index} value={item}>
                     {item}
                   </option>
                 ))}
@@ -377,8 +399,8 @@ const SpecialSlip = () => {
                 "Saudi Arabia",
                 "UAE",
                 "Yemen",
-              ].map((item) => (
-                <option key={item} value={item}>
+              ].map((item, index) => (
+                <option key={index} value={item}>
                   {item}
                 </option>
               ))}
@@ -465,8 +487,8 @@ const SpecialSlip = () => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
               >
-                {["Bangladesh"].map((item) => (
-                  <option key={item} value={item}>
+                {["Bangladesh"].map((item, index) => (
+                  <option key={index} value={item}>
                     {item}
                   </option>
                 ))}
@@ -488,8 +510,8 @@ const SpecialSlip = () => {
                   errors.gender ? "border-red-500" : ""
                 }`}
               >
-                {["......", "Male", "Female", "Others"].map((item) => (
-                  <option key={item} value={item}>
+                {["......", "Male", "Female", "Others"].map((item, index) => (
+                  <option key={index} value={item}>
                     {item}
                   </option>
                 ))}
@@ -510,8 +532,8 @@ const SpecialSlip = () => {
                   errors.maritalStatus ? "border-red-500" : ""
                 }`}
               >
-                {["......", "Single", "Married"].map((item) => (
-                  <option key={item} value={item}>
+                {["......", "Single", "Married"].map((item, index) => (
+                  <option key={index} value={item}>
                     {item}
                   </option>
                 ))}
@@ -584,11 +606,13 @@ const SpecialSlip = () => {
               onChange={handleChange}
               className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             >
-              {["Work Visa", "Family Visa", "Tourist Visa"].map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
+              {["Work Visa", "Family Visa", "Tourist Visa"].map(
+                (item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ),
+              )}
             </select>
           </div>
 
@@ -804,8 +828,8 @@ const SpecialSlip = () => {
                 "Anesthesia technician",
                 "Marvel",
                 "Construction worker",
-              ].map((item) => (
-                <option key={item} value={item}>
+              ].map((item, index) => (
+                <option key={index} value={item}>
                   {item}
                 </option>
               ))}
@@ -824,8 +848,8 @@ const SpecialSlip = () => {
               onChange={handleChange}
               className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             >
-              {medicalCenters.map((item) => (
-                <option key={item} value={item}>
+              {medicalCenters.map((item, index) => (
+                <option key={index} value={item}>
                   {item}
                 </option>
               ))}

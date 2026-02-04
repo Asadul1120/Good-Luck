@@ -95,22 +95,45 @@ const NormalSlip = () => {
   };
 
   const validatePassportValidity = (issueDate, expiryDate) => {
-    if (!issueDate || !expiryDate) return false;
+    if (!issueDate || !expiryDate) return { isValid: false, error: "" };
 
     const issue = new Date(issueDate);
     const expiry = new Date(expiryDate);
+    const today = new Date();
 
     // Expiry must be after issue
-    if (expiry <= issue) return false;
+    if (expiry <= issue) {
+      return {
+        isValid: false,
+        error: "Passport expiry must be after issue date",
+      };
+    }
 
-    // Minimum allowed expiry = Issue date + 5 years - 1 day
-    const minExpiry = new Date(
-      issue.getFullYear() + 5,
-      issue.getMonth(),
-      issue.getDate() - 1,
-    );
+    // Condition 1: Minimum 5 years validity from issue date
+    const minExpiryDate = new Date(issue);
+    minExpiryDate.setFullYear(issue.getFullYear() + 5);
+    minExpiryDate.setDate(minExpiryDate.getDate() - 1); // 5 years - 1 day
 
-    return expiry >= minExpiry;
+    if (expiry < minExpiryDate) {
+      return {
+        isValid: false,
+        error: "Passport validity must be at least 5 years",
+      };
+    }
+
+    // Condition 2: Minimum 6 months and 21 days from today
+    const minValidDate = new Date(today);
+    minValidDate.setMonth(today.getMonth() + 6);
+    minValidDate.setDate(today.getDate() + 21);
+
+    if (expiry < minValidDate) {
+      return {
+        isValid: false,
+        error: "Passport Expiry Date must be greater than 6 Months and 21 Days",
+      };
+    }
+
+    return { isValid: true, error: "" };
   };
 
   const validateForm = () => {
@@ -150,16 +173,15 @@ const NormalSlip = () => {
       }
     }
 
-    // Passport validity validation - must be at least 5 years
+    // Passport validity validation
     if (formData.passportIssueDate && formData.passportExpiryDate) {
-      if (
-        !validatePassportValidity(
-          formData.passportIssueDate,
-          formData.passportExpiryDate,
-        )
-      ) {
-        newErrors.passportExpiryDate =
-          "Passport validity must be at least 5 years";
+      const validationResult = validatePassportValidity(
+        formData.passportIssueDate,
+        formData.passportExpiryDate,
+      );
+
+      if (!validationResult.isValid) {
+        newErrors.passportExpiryDate = validationResult.error;
       }
     }
 
@@ -186,19 +208,19 @@ const NormalSlip = () => {
     }
 
     // Validate passport validity before form submission
-    if (
-      formData.passportIssueDate &&
-      formData.passportExpiryDate &&
-      !validatePassportValidity(
+    if (formData.passportIssueDate && formData.passportExpiryDate) {
+      const validationResult = validatePassportValidity(
         formData.passportIssueDate,
         formData.passportExpiryDate,
-      )
-    ) {
-      setErrors((prev) => ({
-        ...prev,
-        passportExpiryDate: "Passport validity must be at least 5 years",
-      }));
-      return;
+      );
+
+      if (!validationResult.isValid) {
+        setErrors((prev) => ({
+          ...prev,
+          passportExpiryDate: validationResult.error,
+        }));
+        return;
+      }
     }
 
     if (!validateForm()) return;
