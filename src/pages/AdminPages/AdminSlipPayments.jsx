@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../src/api/axios";
+import { toast } from "react-toastify";
 
 const getStatusClass = (status) => {
   switch (status) {
@@ -39,7 +40,7 @@ const AdminSlipPayments = () => {
       const res = await axios.get("/slipPayment");
       setData(res.data.slipPayments || []);
     } catch (err) {
-      alert("Failed to load slip payments");
+      toast.error("Failed to load slip payments");
     }
   };
 
@@ -49,8 +50,9 @@ const AdminSlipPayments = () => {
       setData((prev) =>
         prev.map((item) => (item._id === id ? { ...item, status } : item)),
       );
+      toast.success("Status updated successfully");
     } catch {
-      alert("Status update failed");
+      toast.error("Status update failed");
     }
   };
 
@@ -221,7 +223,7 @@ const AdminSlipPayments = () => {
                         <button
                           onClick={async () => {
                             if (!comments[item._id]?.trim()) {
-                              alert("Please write a comment");
+                              toast.error("Please write a comment");
                               return;
                             }
 
@@ -244,9 +246,9 @@ const AdminSlipPayments = () => {
                                 [item._id]: "",
                               }));
 
-                              alert("Comment saved ✅");
+                              toast.success("Comment saved ✅");
                             } catch {
-                              alert("Failed to save comment ❌");
+                              toast.error("Failed to save comment ❌");
                             }
                           }}
                           className="px-3 py-1 text-xs font-semibold 
@@ -325,8 +327,9 @@ const AdminSlipPayments = () => {
                                 : s,
                             ),
                           );
+                          toast.success("Payment link sent successfully");
                         } catch {
-                          alert("Failed to send payment link ❌");
+                          toast.error("Failed to send payment link ❌");
                         }
                       }}
                       className={`px-3 py-1 text-xs rounded font-semibold ${
@@ -361,5 +364,3 @@ const AdminSlipPayments = () => {
 };
 
 export default AdminSlipPayments;
-
-

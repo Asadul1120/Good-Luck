@@ -14,6 +14,7 @@ import {
   CreditCard,
   Key,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 const AdminPanel = () => {
   const { user } = useAuth();
@@ -36,8 +37,7 @@ const AdminPanel = () => {
       const res = await axios.get("/users");
       setUsers(res.data);
     } catch (error) {
-      console.error("Failed to fetch users:", error);
-      setError("Failed to load users. Please try again.");
+      toast.error("Failed to fetch users. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -49,8 +49,9 @@ const AdminPanel = () => {
     try {
       await axios.delete(`/users/${id}`);
       setUsers((prev) => prev.filter((u) => u._id !== id));
+      toast.success("User deleted successfully");
     } catch (error) {
-      alert(error.response?.data?.message || "Delete failed");
+      toast.error(error.response?.data?.message || "Delete failed");
     }
   };
 
@@ -59,8 +60,9 @@ const AdminPanel = () => {
     try {
       await axios.patch(`/users/${id}/role`, { role });
       setUsers((prev) => prev.map((u) => (u._id === id ? { ...u, role } : u)));
+      toast.success("Role updated successfully");
     } catch (error) {
-      alert(error.response?.data?.message || "Role update failed");
+      toast.error(error.response?.data?.message || "Role update failed");
     } finally {
       setUpdatingUser(null);
     }
@@ -69,16 +71,16 @@ const AdminPanel = () => {
   const handlePasswordReset = async (id) => {
     const newPassword = passwordReset[id];
     if (!newPassword || newPassword.length < 6) {
-      alert("Password must be at least 6 characters long");
+      toast.warn("Password must be at least 6 characters long");
       return;
     }
 
     try {
       await axios.patch(`/users/${id}/reset-password`, { newPassword });
-      alert("Password reset successfully");
+      toast.success("Password reset successfully");
       setPasswordReset((prev) => ({ ...prev, [id]: "" }));
     } catch (error) {
-      alert(error.response?.data?.message || "Password reset failed");
+      toast.error(error.response?.data?.message || "Password reset failed");
     }
   };
 

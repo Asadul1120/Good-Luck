@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SpecialSlip = () => {
   const { user } = useAuth();
@@ -38,7 +39,7 @@ const SpecialSlip = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passportMatchError, setPassportMatchError] = useState("");
-  const [medicalCenters, setMedicalCenters] = useState([]); // [medicalCenters]
+  const [medicalCenters, setMedicalCenters] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const SpecialSlip = () => {
         centerNames.unshift("---------");
         setMedicalCenters(centerNames);
       } catch (error) {
-        console.error("Failed to load medical centers", error);
+        toast.error("Failed to load medical centers");
       } finally {
         setLoading(false);
       }
@@ -180,7 +181,7 @@ const SpecialSlip = () => {
     event.preventDefault();
 
     if (!formData.agreeTerms) {
-      alert("Please agree to terms and conditions");
+      toast.warn("Please agree to terms and conditions");
       return;
     }
 
@@ -212,7 +213,7 @@ const SpecialSlip = () => {
     if (!validateForm()) return;
 
     if (passportMatchError) {
-      alert(passportMatchError);
+      toast.error(passportMatchError);
       return;
     }
 
@@ -254,10 +255,10 @@ const SpecialSlip = () => {
 
       await axios.post("/slips", payload);
 
-      alert("Special Slip submitted successfully ✅");
+      toast.success("Special Slip submitted successfully ✅");
       navigate("/dashboard");
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to submit form");
+      toast.error(error.response?.data?.message || "Failed to submit form");
     } finally {
       setIsSubmitting(false);
     }
@@ -265,7 +266,7 @@ const SpecialSlip = () => {
 
   const handleAddYears = (years) => {
     if (!formData.passportIssueDate) {
-      alert("Please set passport issue date first");
+      toast.info("Please set passport issue date first");
       return;
     }
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "../src/api/axios";
+import { toast } from "react-toastify";
 
 const AdminNoticeEditor = () => {
   const editorRef = useRef(null);
@@ -36,7 +37,7 @@ const AdminNoticeEditor = () => {
           setMarquee2(marqueeRes.data.text2 || "");
         }
       } catch (err) {
-        console.error("Failed to load notice/marquee", err);
+        toast.error("Failed to load notice/marquee");
       }
     };
 
@@ -56,9 +57,9 @@ const AdminNoticeEditor = () => {
         title,
         messageHtml: editorRef.current.innerHTML,
       });
-      alert("✅ Notice saved");
+      toast.success("Notice saved successfully");
     } catch {
-      alert("❌ Failed to save notice");
+      toast.error("Failed to save notice");
     } finally {
       setSavingNotice(false);
     }
@@ -72,9 +73,9 @@ const AdminNoticeEditor = () => {
         text1: marquee1,
         text2: marquee2,
       });
-      alert("✅ Marquee updated");
+      toast.success("Marquee updated successfully");
     } catch {
-      alert("❌ Failed to save marquee");
+      toast.error("Failed to save marquee");
     } finally {
       setSavingMarquee(false);
     }

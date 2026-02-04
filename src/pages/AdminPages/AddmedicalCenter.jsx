@@ -16,6 +16,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 /* =====================
    CONSTANTS
@@ -44,11 +45,6 @@ const AdminMedicalCenters = () => {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [errors, setErrors] = useState({});
-  const [notification, setNotification] = useState({
-    show: false,
-    message: "",
-    type: "success",
-  });
   const [showFilters, setShowFilters] = useState(false);
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -58,14 +54,6 @@ const AdminMedicalCenters = () => {
   /* =====================
      HELPERS
   ===================== */
-  const showNotification = (message, type = "success") => {
-    setNotification({ show: true, message, type });
-    setTimeout(
-      () => setNotification({ show: false, message: "", type: "success" }),
-      3000,
-    );
-  };
-
   const resetForm = () => {
     setEditingId(null);
     setFormData(EMPTY_FORM);
@@ -81,7 +69,7 @@ const AdminMedicalCenters = () => {
       const res = await axios.get("/medicalCenters");
       setCenters(res.data.centers);
     } catch {
-      showNotification("Failed to fetch medical centers", "error");
+      toast.error("Failed to fetch medical centers");
     } finally {
       setLoading(false);
     }
@@ -117,7 +105,7 @@ const AdminMedicalCenters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      showNotification("Fix form errors", "error");
+      toast.error("Please fix form errors");
       return;
     }
 
@@ -132,13 +120,11 @@ const AdminMedicalCenters = () => {
         ? await axios.put(`/medicalCenters/${editingId}`, payload)
         : await axios.post("/medicalCenters/create", payload);
 
-      showNotification(
-        editingId ? "Updated successfully" : "Added successfully",
-      );
+      toast.success(editingId ? "Updated successfully" : "Added successfully");
       resetForm();
       fetchCenters();
     } catch {
-      showNotification("Action failed", "error");
+      toast.error("Action failed");
     }
   };
 
@@ -166,10 +152,10 @@ const AdminMedicalCenters = () => {
       return;
     try {
       await axios.delete(`/medicalCenters/${id}`);
-      showNotification("Deleted successfully");
+      toast.success("Deleted successfully");
       fetchCenters();
     } catch {
-      showNotification("Delete failed", "error");
+      toast.error("Delete failed");
     }
   };
 
@@ -250,28 +236,6 @@ const AdminMedicalCenters = () => {
   ===================== */
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
-      {/* TOAST NOTIFICATION */}
-      {notification.show && (
-        <div
-          className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
-            notification.type === "error"
-              ? "bg-red-50 border-l-4 border-red-500"
-              : "bg-green-50 border-l-4 border-green-500"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            {notification.type === "error" ? (
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-            ) : (
-              <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-            )}
-            <span className="font-medium text-gray-800">
-              {notification.message}
-            </span>
-          </div>
-        </div>
-      )}
-
       <div className="max-w-7xl mx-auto space-y-6">
         {/* HEADER */}
         <header className="bg-white p-6 rounded-xl shadow-sm">
@@ -662,8 +626,3 @@ const AdminMedicalCenters = () => {
 };
 
 export default AdminMedicalCenters;
-
-
-
-
-

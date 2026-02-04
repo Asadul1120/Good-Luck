@@ -4,6 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FiExternalLink, FiTrash2, FiCopy, FiCheck } from "react-icons/fi";
 import { IoCardOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 const AdminPayment = () => {
   const today = new Date();
@@ -30,7 +31,7 @@ const AdminPayment = () => {
       const res = await axios.get("/admin-payment-links");
       setData(res.data);
     } catch (err) {
-      console.error(err);
+      toast.error("Failed to fetch payment links");
     }
   };
 
@@ -48,8 +49,9 @@ const AdminPayment = () => {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
+      toast.success("Copied to clipboard");
     } catch (err) {
-      console.error("Failed to copy:", err);
+      toast.error("Failed to copy");
     }
   };
 
@@ -95,7 +97,8 @@ const AdminPayment = () => {
       !form.cardExpiry ||
       !form.cardCVV
     ) {
-      return alert("All card fields & bulk data required");
+      toast.error("All card fields & bulk data required");
+      return;
     }
 
     const rows = form.bulkData
@@ -133,7 +136,10 @@ const AdminPayment = () => {
       });
     });
 
-    if (parsed.length === 0) return alert("No valid rows found");
+    if (parsed.length === 0) {
+      toast.error("No valid rows found");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -149,13 +155,13 @@ const AdminPayment = () => {
       setData([...res.data.saved, ...data]);
 
       if (res.data.skipped?.length > 0) {
-        alert(`${res.data.skipped.length} duplicate link skipped`);
+        toast.warn(`${res.data.skipped.length} duplicate link skipped`);
       }
 
       setForm({ ...form, bulkData: "" });
+      toast.success("Bulk entries added successfully");
     } catch (error) {
-      alert(error.response?.data?.message || "Something went wrong");
-      console.error(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -168,8 +174,9 @@ const AdminPayment = () => {
     try {
       await axios.delete(`/admin-payment-links/${id}`);
       setData(data.filter((i) => i._id !== id));
+      toast.success("Payment link deleted successfully");
     } catch (err) {
-      console.error(err);
+      toast.error("Failed to delete payment link");
     }
   };
 
@@ -379,10 +386,9 @@ const AdminPayment = () => {
                 try {
                   await axios.delete("/admin-payment-links");
                   setData([]);
-                  alert("✅ All payment links deleted successfully");
+                  toast.success("All payment links deleted successfully");
                 } catch (err) {
-                  alert("❌ Failed to delete all payment links");
-                  console.error(err);
+                  toast.error("Failed to delete all payment links");
                 }
               }}
               className={`px-4 py-2 rounded-lg font-semibold text-white transition

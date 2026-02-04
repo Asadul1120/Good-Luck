@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import FeatureControl from "../../components/FeatureControl";
-
+import { toast } from "react-toastify";
 
 const isValidDate = (date) => {
   return date instanceof Date && !isNaN(date);
@@ -19,7 +19,6 @@ const AdminDashboard = () => {
   const [paymentLinks, setPaymentLinks] = useState({});
   const [amounts, setAmounts] = useState({}); // ✅ AMOUNT STATE
   const [allocateCenters, setAllocateCenters] = useState({}); // ✅ ALLOCATE CENTERS
-
   const [comments, setComments] = useState({}); // ✅ setComments
 
   const today = new Date();
@@ -35,7 +34,7 @@ const AdminDashboard = () => {
       const res = await axios.get("/slips");
       setData(res.data);
     } catch (err) {
-      console.error(err);
+      toast.error("Failed to fetch slips data");
     }
   };
 
@@ -47,8 +46,9 @@ const AdminDashboard = () => {
           item._id === id ? { ...item, status: newStatus } : item,
         ),
       );
+      toast.success("Status updated successfully");
     } catch (error) {
-      alert("Status update failed");
+      toast.error("Status update failed");
     }
   };
 
@@ -108,7 +108,6 @@ const AdminDashboard = () => {
       </h1>
 
       <FeatureControl />
-     
 
       {/* FILTER BAR */}
       <div className="mb-5 bg-white p-4 rounded-xl shadow">
@@ -273,8 +272,8 @@ const AdminDashboard = () => {
                 </td>
                 <td className="border px-2 py-1 uppercase">
                   {typeof item.user === "string"
-                    ? item.user?.slice(0, 6) || "-"
-                    : item.user?._id?.slice(0, 6) || "-"}
+                    ? item.user?.slice(-6) || "-"
+                    : item.user?._id?.slice(-6) || "-"}
                 </td>
 
                 <td className="border px-2 py-1">{item.firstName}</td>
@@ -410,9 +409,9 @@ const AdminDashboard = () => {
                                 ),
                               );
 
-                              alert("Comment saved ✅");
+                              toast.success("Comment saved ✅");
                             } catch (err) {
-                              alert("Failed to save comment ❌");
+                              toast.error("Failed to save comment ❌");
                             }
                           }}
                           className="px-3 py-1 text-xs font-semibold bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition"
@@ -486,9 +485,9 @@ const AdminDashboard = () => {
                             ),
                           );
 
-                          alert("Payment link sent ✅");
+                          toast.success("Payment link sent ✅");
                         } catch {
-                          alert("Failed to send payment link");
+                          toast.error("Failed to send payment link");
                         }
                       }}
                       className={`px-3 py-1 text-xs rounded font-semibold

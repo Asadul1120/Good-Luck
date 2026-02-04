@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from "../src/api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const NormalSlip = () => {
   const { user } = useAuth();
@@ -171,7 +172,7 @@ const NormalSlip = () => {
     event.preventDefault();
 
     if (!formData.agreeTerms) {
-      alert("Please agree to terms and conditions");
+      toast.error("Please agree to terms and conditions");
       return;
     }
 
@@ -203,7 +204,7 @@ const NormalSlip = () => {
     if (!validateForm()) return;
 
     if (passportMatchError) {
-      alert(passportMatchError);
+      toast.error(passportMatchError);
       return;
     }
 
@@ -240,21 +241,20 @@ const NormalSlip = () => {
         remarks: formData.remarks,
       };
 
-      console.log(payload);
-
       await axios.post("/slips", payload);
 
-      alert("Normal Slip submitted successfully ✅");
+      toast.success("Normal Slip submitted successfully ✅");
       navigate("/dashboard");
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to submit form");
+      toast.error(error.response?.data?.message || "Failed to submit form");
     } finally {
       setIsSubmitting(false);
     }
   };
+
   const handleAddYears = (years) => {
     if (!formData.passportIssueDate) {
-      alert("Please set passport issue date first");
+      toast.warn("Please set passport issue date first");
       return;
     }
 

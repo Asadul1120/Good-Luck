@@ -1,20 +1,22 @@
+
+
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "../src/api/axios";
-
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SlipPayment = () => {
   const [paymentLink, setPaymentLink] = useState("");
   const [remarks, setRemarks] = useState("");
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
-
   const { user } = useAuth();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
     const data = {
       slipType: "Slip-Payment",
@@ -22,19 +24,15 @@ const SlipPayment = () => {
       playLink: paymentLink,
       remarks: remarks,
     };
+
     try {
-      axios
-        .post("/slipPayment/create", data)
-        .then((response) => {
-          console.log(response.data);
-          alert(response.data.message);
-          navigate("/userSlipPayments");
-        })
-        .catch((error) => {
-          alert(error.response.data.message);
-        });
+      const response = await axios.post("/slipPayment/create", data);
+      toast.success(response.data.message);
+      navigate("/userSlipPayments");
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to submit payment");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -75,9 +73,12 @@ const SlipPayment = () => {
 
           <button
             type="submit"
-            className=" bg-stone-800 hover:bg-stone-900 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition"
+            disabled={isSubmitting}
+            className={`bg-stone-800 hover:bg-stone-900 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Save and Progress
+            {isSubmitting ? "Submitting..." : "Save and Progress"}
           </button>
         </form>
       </div>

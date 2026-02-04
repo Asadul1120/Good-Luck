@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "../src/api/axios"; // ✅ axios instance
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({});
@@ -18,34 +19,16 @@ const Profile = () => {
     }
   }, [user]);
 
-  // ================= GET USER DATA =================
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       const res = await axios.get("/users/me"); // ✅ correct
-  //       setProfileData(res.data.user); // 🔥 backend sends { user }
-  //     } catch (error) {
-  //       console.error(
-  //         "Error fetching user data:",
-  //         error.response?.data || error.message,
-  //       );
-  //     }
-  //   };
-  //   fetchUserData();
-  // }, []);
-
   useEffect(() => {
     if (!user?._id) return;
 
     const fetchSubmitWork = async () => {
       try {
         const res = await axios.get(`/submitWork/price/${user._id}`);
-
         setSubmitCount(res.data.totalAmount);
       } catch (error) {
-        console.error(
-          "Error fetching submit work amount:",
-          error.response?.data || error.message,
+        toast.error(
+          error.response?.data?.message || "Error fetching submit work amount",
         );
       }
     };
@@ -59,12 +42,12 @@ const Profile = () => {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setUploadStatus("File size should be less than 5MB");
+      toast.error("File size should be less than 5MB");
       return;
     }
 
     if (!file.type.startsWith("image/")) {
-      setUploadStatus("Please select an image file");
+      toast.error("Please select an image file");
       return;
     }
 
@@ -85,7 +68,7 @@ const Profile = () => {
   // ================= UPLOAD IMAGE =================
   const handleUpdateProfile = async () => {
     if (!selectedFile) {
-      setUploadStatus("Please select a file first");
+      toast.warn("Please select a file first");
       return;
     }
 
@@ -97,20 +80,19 @@ const Profile = () => {
       formData.append("image", selectedFile);
 
       const res = await axios.patch("/users/me/image", formData);
-      refreshUser();
 
       setProfileData((prev) => ({
         ...prev,
         image: res.data.image, // ✅ cloudinary URL
       }));
 
-      setUploadStatus("Profile picture updated successfully!");
+      toast.success("Profile picture updated successfully!");
       setSelectedFile(null);
+      setUploadStatus("");
     } catch (error) {
-      setUploadStatus(error.response?.data?.message || "Image upload failed");
+      toast.error(error.response?.data?.message || "Image upload failed");
     } finally {
       setIsUploading(false);
-      setTimeout(() => setUploadStatus(""), 3000);
     }
   };
 
@@ -153,7 +135,6 @@ const Profile = () => {
           ))}
         </div>
 
-        {/* Profile Picture */}
         {/* Profile Picture */}
         <div className="border-t pt-6 space-y-6">
           <h2 className="text-lg font-semibold text-gray-800">
