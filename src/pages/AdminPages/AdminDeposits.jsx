@@ -137,12 +137,11 @@ const AdminDeposits = () => {
   return (
     <>
       <div className="min-h-screen bg-gray-100 px-3 py-4 md:p-8">
-        <div className="bg-white rounded-2xl shadow-md p-4 md:p-6 overflow-x-auto">
+        <div className="bg-white rounded-2xl shadow-md p-4 md:p-6">
           <h1 className="text-xl md:text-2xl font-bold text-blue-600 mb-4">
             User Deposit Requests
           </h1>
 
-        
           {/* ================= FILTER BAR ================= */}
           <div className="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-200">
             {/* First row - main filters */}
@@ -266,126 +265,141 @@ const AdminDeposits = () => {
           </div>
           {/* ================= END FILTER BAR ================= */}
 
-          {/* ================= END FILTER BAR ================= */}
-
-          <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-gray-50 text-xs md:text-sm text-gray-700">
-              <tr>
-                <th className="p-3 border">User</th>
-                <th className="p-3 border hidden md:table-cell">User ID</th>
-                <th className="p-3 border">Amount</th>
-                <th className="p-3 border">Method</th>
-                <th className="p-3 border">Reference</th>
-                <th className="p-3 border hidden sm:table-cell">Date</th>
-                <th className="p-3 border">Slip</th>
-                <th className="p-3 border hidden lg:table-cell">Remarks</th>
-                <th className="p-3 border">Status</th>
-              </tr>
-            </thead>
-
-            <tbody className="text-xs md:text-sm">
-              {filteredDeposits.length === 0 && (
+          {/* Table for both desktop and mobile */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50 text-xs md:text-sm text-gray-700">
                 <tr>
-                  <td colSpan="9" className="text-center p-6 text-gray-400">
-                    No deposit requests found
-                  </td>
+                  <th className="p-3 border min-w-[120px]">User</th>
+                  <th className="p-3 border min-w-[80px] hidden md:table-cell">
+                    User ID
+                  </th>
+                  <th className="p-3 border min-w-[100px]">Amount</th>
+                  <th className="p-3 border min-w-[100px]">Method</th>
+                  <th className="p-3 border min-w-[120px]">Reference</th>
+                  <th className="p-3 border min-w-[120px] hidden sm:table-cell">
+                    Date
+                  </th>
+                  <th className="p-3 border min-w-[80px]">Slip</th>
+                  <th className="p-3 border min-w-[150px] hidden lg:table-cell">
+                    Remarks
+                  </th>
+                  <th className="p-3 border min-w-[100px]">Status</th>
                 </tr>
-              )}
+              </thead>
 
-              {filteredDeposits.map((d) => (
-                <tr key={d.id} className="hover:bg-gray-50 transition">
-                  <td className="border p-3">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={
-                          d.image
-                            ? d.image
-                            : `https://ui-avatars.com/api/?name=${d.username}`
-                        }
-                        className="w-9 h-9 rounded-full border"
-                      />
-                      <div>
-                        <div className="font-semibold">{d.username}</div>
-                        <div className="text-[10px] text-gray-400 md:hidden">
-                          {d.userId?.slice(0, 6)}
+              <tbody className="text-xs md:text-sm">
+                {filteredDeposits.length === 0 && (
+                  <tr>
+                    <td colSpan="9" className="text-center p-6 text-gray-400">
+                      No deposit requests found
+                    </td>
+                  </tr>
+                )}
+
+                {filteredDeposits.map((d) => (
+                  <tr key={d.id} className="hover:bg-gray-50 transition">
+                    <td className="border p-3">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={
+                            d.image
+                              ? d.image
+                              : `https://ui-avatars.com/api/?name=${d.username}`
+                          }
+                          className="w-8 h-8 md:w-9 md:h-9 rounded-full border"
+                          alt={d.username}
+                        />
+                        <div>
+                          <div className="font-semibold text-xs md:text-sm">
+                            {d.username}
+                          </div>
+                          <div className="text-[10px] text-gray-400 md:hidden">
+                            ID: {d.userId?.slice(0, 6)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  <td className="border p-3 text-xs hidden md:table-cell uppercase">
-                    {d.userId?.slice(0, 6)}
-                  </td>
+                    <td className="border p-3 text-xs hidden md:table-cell uppercase">
+                      {d.userId?.slice(0, 6)}
+                    </td>
 
-                  <td className="border p-3 font-semibold">
-                    {d.statusRaw === "pending" ? (
-                      <input
-                        type="number"
-                        value={cleanAmount(d.amount)}
-                        onChange={(e) =>
-                          setDeposits((prev) =>
-                            prev.map((x) =>
-                              x.id === d.id
-                                ? {
-                                    ...x,
-                                    amount: parseFloat(e.target.value) || 0,
-                                  }
-                                : x,
-                            ),
-                          )
-                        }
-                        className="w-24 border rounded px-2 py-1 text-sm"
+                    <td className="border p-3 font-semibold">
+                      {d.statusRaw === "pending" ? (
+                        <input
+                          type="number"
+                          value={cleanAmount(d.amount)}
+                          onChange={(e) =>
+                            setDeposits((prev) =>
+                              prev.map((x) =>
+                                x.id === d.id
+                                  ? {
+                                      ...x,
+                                      amount: parseFloat(e.target.value) || 0,
+                                    }
+                                  : x,
+                              ),
+                            )
+                          }
+                          className="w-20 md:w-24 border rounded px-2 py-1 text-xs md:text-sm"
+                        />
+                      ) : (
+                        <>৳ {d.formattedAmount || d.amount}</>
+                      )}
+                    </td>
+
+                    <td className="border p-3 text-xs md:text-sm">
+                      {d.paymentMethod}
+                    </td>
+                    <td className="border p-3 text-xs md:text-sm">
+                      {d.referenceNo}
+                    </td>
+
+                    <td className="border p-3 hidden sm:table-cell">
+                      <div className="text-xs md:text-sm">{d.paymentDate}</div>
+                      <div className="text-[10px] md:text-xs text-gray-400">
+                        Req: {d.requestDate}
+                      </div>
+                    </td>
+
+                    <td className="border p-2">
+                      <img
+                        src={d.depositSlip}
+                        className="w-10 h-10 md:w-11 md:h-11 object-cover rounded-lg cursor-pointer mx-auto"
+                        onClick={() => {
+                          setSelectedImage(d.depositSlip);
+                          setZoom(1);
+                        }}
+                        alt="Deposit slip"
                       />
-                    ) : (
-                      <>৳ {d.formattedAmount || d.amount}</>
-                    )}
-                  </td>
+                    </td>
 
-                  <td className="border p-3">{d.paymentMethod}</td>
-                  <td className="border p-3">{d.referenceNo}</td>
+                    <td className="border p-3 text-xs md:text-sm hidden lg:table-cell">
+                      {d.userRemarks}
+                    </td>
 
-                  <td className="border p-3 hidden sm:table-cell">
-                    {d.paymentDate}
-                    <div className="text-[10px] text-gray-400">
-                      Req: {d.requestDate}
-                    </div>
-                  </td>
-
-                  <td className="border p-2">
-                    <img
-                      src={d.depositSlip}
-                      className="w-11 h-11 object-cover rounded-lg cursor-pointer mx-auto"
-                      onClick={() => {
-                        setSelectedImage(d.depositSlip);
-                        setZoom(1);
-                      }}
-                    />
-                  </td>
-
-                  <td className="border p-3 hidden lg:table-cell">
-                    {d.userRemarks}
-                  </td>
-
-                  <td className="border p-3">
-                    <select
-                      value={d.statusRaw}
-                      disabled={d.statusRaw !== "pending"}
-                      onChange={(e) =>
-                        handleStatusChange(d.id, e.target.value, d.amount)
-                      }
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColor(
-                        d.statusRaw,
-                      )}`}
-                    >
-                      <option value="pending">pending</option>
-                      <option value="approved">approved</option>
-                      <option value="rejected">rejected</option>
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <td className="border p-3">
+                      <select
+                        value={d.statusRaw}
+                        disabled={d.statusRaw !== "pending"}
+                        onChange={(e) =>
+                          handleStatusChange(d.id, e.target.value, d.amount)
+                        }
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColor(
+                          d.statusRaw,
+                        )}`}
+                      >
+                        <option value="pending">pending</option>
+                        <option value="approved">approved</option>
+                        <option value="rejected">rejected</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -401,15 +415,31 @@ const AdminDeposits = () => {
             </button>
 
             <div className="flex justify-center gap-4 mb-3">
-              <button onClick={() => setZoom((z) => z - 0.2)}>−</button>
-              <button onClick={() => setZoom(1)}>Reset</button>
-              <button onClick={() => setZoom((z) => z + 0.2)}>+</button>
+              <button
+                onClick={() => setZoom((z) => z - 0.2)}
+                className="px-3 py-1 bg-gray-200 rounded"
+              >
+                −
+              </button>
+              <button
+                onClick={() => setZoom(1)}
+                className="px-3 py-1 bg-gray-200 rounded"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => setZoom((z) => z + 0.2)}
+                className="px-3 py-1 bg-gray-200 rounded"
+              >
+                +
+              </button>
             </div>
 
             <img
               src={selectedImage}
               style={{ transform: `scale(${zoom})` }}
               className="max-h-[75vh] mx-auto rounded"
+              alt="Enlarged deposit slip"
             />
           </div>
         </div>
