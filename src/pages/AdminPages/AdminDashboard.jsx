@@ -270,10 +270,8 @@ const AdminDashboard = () => {
                 <td className="border px-2 py-1 text-blue-600 font-semibold">
                   {item.slipType}
                 </td>
-                <td className="border px-2 py-1 uppercase">
-                  {typeof item.user === "string"
-                    ? item.user?.slice(-6) || "-"
-                    : item.user?._id?.slice(-6) || "-"}
+                <td className="border px-2 py-1 ">
+                  {item.name || "-"}
                 </td>
 
                 <td className="border px-2 py-1">{item.firstName}</td>

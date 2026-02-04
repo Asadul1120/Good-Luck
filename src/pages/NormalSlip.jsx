@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 const NormalSlip = () => {
   const { user } = useAuth();
-  const userEmail = user?.email;
+  const userName = user?.username;
   const userPhone = user?.phone;
 
   const [formData, setFormData] = useState({
@@ -237,7 +237,7 @@ const NormalSlip = () => {
       const payload = {
         slipType: "Normal-Slip",
         user: user?._id, // ✅ MUST ADD (THIS IS THE FIX)
-        email: userEmail,
+        name: userName,
         phone: userPhone,
         country: formData.country,
         city: formData.city,

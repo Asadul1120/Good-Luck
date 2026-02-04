@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 const SpecialSlip = () => {
   const { user } = useAuth();
   const userId = user?._id;
-  const userEmail = user?.email;
+  const userName = user?.username;
   const userPhone = user?.phone;
   const userBalance = user?.balance;
 
@@ -246,7 +246,7 @@ const SpecialSlip = () => {
       const payload = {
         slipType: "Special-Slip",
         user: user?._id,
-        email: userEmail,
+        name: userName,
         phone: userPhone,
         balance: userBalance,
         country: formData.country,

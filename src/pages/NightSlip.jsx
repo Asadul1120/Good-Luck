@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 const NightSlip = () => {
   const { user } = useAuth();
-  const userEmail = user?.email;
+  const userName = user?.username;
   const userPhone = user?.phone;
 
   const [formData, setFormData] = useState({
@@ -103,7 +103,10 @@ const NightSlip = () => {
 
     // Expiry must be after issue
     if (expiry <= issue) {
-      return { isValid: false, error: "Passport expiry must be after issue date" };
+      return {
+        isValid: false,
+        error: "Passport expiry must be after issue date",
+      };
     }
 
     // Condition 1: Minimum 5 years validity from issue date
@@ -112,9 +115,9 @@ const NightSlip = () => {
     minExpiryDate.setDate(minExpiryDate.getDate() - 1); // 5 years - 1 day
 
     if (expiry < minExpiryDate) {
-      return { 
-        isValid: false, 
-        error: "Passport validity must be at least 5 years" 
+      return {
+        isValid: false,
+        error: "Passport validity must be at least 5 years",
       };
     }
 
@@ -124,9 +127,9 @@ const NightSlip = () => {
     minValidDate.setDate(today.getDate() + 21);
 
     if (expiry < minValidDate) {
-      return { 
-        isValid: false, 
-        error: "Passport Expiry Date must be greater than 6 Months and 21 Days" 
+      return {
+        isValid: false,
+        error: "Passport Expiry Date must be greater than 6 Months and 21 Days",
       };
     }
 
@@ -174,9 +177,9 @@ const NightSlip = () => {
     if (formData.passportIssueDate && formData.passportExpiryDate) {
       const validationResult = validatePassportValidity(
         formData.passportIssueDate,
-        formData.passportExpiryDate
+        formData.passportExpiryDate,
       );
-      
+
       if (!validationResult.isValid) {
         newErrors.passportExpiryDate = validationResult.error;
       }
@@ -208,9 +211,9 @@ const NightSlip = () => {
     if (formData.passportIssueDate && formData.passportExpiryDate) {
       const validationResult = validatePassportValidity(
         formData.passportIssueDate,
-        formData.passportExpiryDate
+        formData.passportExpiryDate,
       );
-      
+
       if (!validationResult.isValid) {
         setErrors((prev) => ({
           ...prev,
@@ -234,7 +237,7 @@ const NightSlip = () => {
       const payload = {
         slipType: "Night-Slip",
         user: user?._id, // ✅ MUST ADD (THIS IS THE FIX)
-        email: userEmail,
+        name: userName,
         phone: userPhone,
         country: formData.country,
         city: formData.city,
