@@ -14,6 +14,7 @@ const AdminDeposits = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterMethod, setFilterMethod] = useState("all");
   const [searchRef, setSearchRef] = useState("");
+  const [PaymentMethod, setPaymentMethod] = useState([]);
 
   // Date filter states
   const [startDate, setStartDate] = useState(new Date());
@@ -31,6 +32,21 @@ const AdminDeposits = () => {
       }
     };
     fetchDeposits();
+  }, []);
+
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        const res = await axios.get("/payment-methods");
+        const methodsNames = res.data.data.map((method) => method.methodName);
+        methodsNames.push("Other or cash", "Refund");
+        setPaymentMethod(methodsNames);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchPaymentMethods();
   }, []);
 
   // Amount cleaning helper function
@@ -164,7 +180,7 @@ const AdminDeposits = () => {
                 onChange={(e) => setFilterMethod(e.target.value)}
                 className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">All Methods</option>
+                {/* <option value="all">All Methods</option>
                 <option value="Bkash">Bkash</option>
                 <option value="Nagad">Nagad</option>
                 <option value="Bkash Payment">Bkash Payment</option>
@@ -172,7 +188,13 @@ const AdminDeposits = () => {
                   SOUTHEAST BANK LIMITED
                 </option>
                 <option value="Other or cash">Other or cash</option>
-                <option value="Refund">Refund</option>
+                <option value="Refund">Refund</option> */}
+
+                {PaymentMethod.map((method, index) => (
+                  <option key={index} value={method}>
+                    {method}
+                  </option>
+                ))}
               </select>
 
               {/* REFERENCE SEARCH */}
