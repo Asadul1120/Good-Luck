@@ -203,44 +203,8 @@
 
 // export default MedicalCenter;
 
-
-
-
-
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "../src/api/axios";
-
-/* 🔹 Dynamic country-city mapping from API data */
-const getDynamicCountryCityMap = (centers) => {
-  const map = {};
-  centers.forEach(center => {
-    if (center.country && center.city) {
-      if (!map[center.country]) {
-        map[center.country] = new Set();
-      }
-      map[center.country].add(center.city);
-    }
-  });
-  
-  // Convert Set to Array
-  const result = {};
-  Object.keys(map).forEach(country => {
-    result[country] = Array.from(map[country]);
-  });
-  
-  return result;
-};
-
-/* 🔹 Static mapping for predefined countries (optional) */
-const staticCountryCityMap = {
-  Bangladesh: [
-    "Dhaka", "Mymensingh", "Rangpur", "Chittagong", "Sylhet", 
-    "Khulna", "Rajshahi", "Barishal", "Cumilla"
-  ],
-  India: ["Delhi", "Mumbai", "Kolkata", "Chennai", "Bangalore", "Hyderabad"],
-  Pakistan: ["Lahore", "Karachi", "Islamabad", "Rawalpindi", "Faisalabad"],
-  Nepal: ["Kathmandu", "Biratnagar", "Pokhara", "Butwal", "Jhapa"],
-};
 
 const TABLE_HEADERS = ["S.L", "Name", "Country", "City", "Price", "Quota"];
 
@@ -253,12 +217,12 @@ const MedicalCenter = () => {
 
   const [medicalCenters, setMedicalCenters] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [allCountries, setAllCountries] = useState([]);
   const [countryCityMap, setCountryCityMap] = useState({});
+  const [allCountries, setAllCountries] = useState([]);
 
   const { country, city, centerName } = filters;
 
-  /* 🔹 Fetch medical centers */
+  /* 🔹 Fetch medical centers and create country-city mapping */
   useEffect(() => {
     const fetchCenters = async () => {
       try {
@@ -266,17 +230,35 @@ const MedicalCenter = () => {
         const res = await axios.get("/medicalCenters");
         const centers = res.data?.centers || [];
         setMedicalCenters(centers);
-        
-        // Create dynamic country-city mapping
-        const dynamicMap = getDynamicCountryCityMap(centers);
-        
-        // Merge with static mapping (static has priority)
-        const mergedMap = { ...dynamicMap, ...staticCountryCityMap };
-        setCountryCityMap(mergedMap);
-        
-        // Extract unique countries
-        const countries = [...new Set(centers.map(c => c.country).filter(Boolean))];
-        setAllCountries(countries.sort());
+
+        // Create country-city mapping from API data
+        const map = {};
+        const countriesSet = new Set();
+
+        centers.forEach((center) => {
+          if (center.country && center.city) {
+            // Add country to set
+            countriesSet.add(center.country.trim());
+
+            // Add city to country's city list
+            if (!map[center.country.trim()]) {
+              map[center.country.trim()] = new Set();
+            }
+            map[center.country.trim()].add(center.city.trim());
+          }
+        });
+
+        // Convert Set to Array for each country
+        const finalMap = {};
+        Object.keys(map).forEach((countryName) => {
+          finalMap[countryName] = Array.from(map[countryName]).sort();
+        });
+
+        setCountryCityMap(finalMap);
+
+        // Convert countries set to sorted array
+        const sortedCountries = Array.from(countriesSet).sort();
+        setAllCountries(sortedCountries);
       } catch (error) {
         console.error("Failed to load medical centers", error);
       } finally {
@@ -288,19 +270,22 @@ const MedicalCenter = () => {
   }, []);
 
   /* 🔹 Cities based on selected country */
-  const cities = useMemo(
-    () => (country && countryCityMap[country]) ? countryCityMap[country] : [],
-    [country, countryCityMap]
-  );
+  const cities = useMemo(() => {
+    if (!country || !countryCityMap[country]) return [];
+    return countryCityMap[country];
+  }, [country, countryCityMap]);
 
   /* 🔹 Filtered medical centers */
   const filteredCenters = useMemo(() => {
     return medicalCenters.filter((center) => {
-      const matchCountry = !country || center.country === country;
-      const matchCity = !city || center.city === city;
+      const centerCountry = center.country?.trim() || "";
+      const centerCity = center.city?.trim() || "";
+      const centerNameLower = center.name?.toLowerCase() || "";
+
+      const matchCountry = !country || centerCountry === country;
+      const matchCity = !city || centerCity === city;
       const matchName =
-        !centerName ||
-        center.name?.toLowerCase().includes(centerName.toLowerCase());
+        !centerName || centerNameLower.includes(centerName.toLowerCase());
 
       return matchCountry && matchCity && matchName;
     });
@@ -349,6 +334,11 @@ const MedicalCenter = () => {
                   </option>
                 ))}
               </select>
+              {allCountries.length > 0 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {allCountries.length} countries available
+                </p>
+              )}
             </div>
 
             {/* City */}
@@ -369,8 +359,11 @@ const MedicalCenter = () => {
                   </option>
                 ))}
               </select>
-              {country && cities.length === 0 && (
-                <p className="text-xs text-gray-500 mt-1">No cities available</p>
+              {country && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {cities.length} {cities.length === 1 ? "city" : "cities"}{" "}
+                  available
+                </p>
               )}
             </div>
 
@@ -398,11 +391,12 @@ const MedicalCenter = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Results Count */}
           {!loading && (
             <div className="mt-4 text-sm text-gray-600">
-              <span className="font-medium">{filteredCenters.length}</span> medical centers found
+              <span className="font-medium">{filteredCenters.length}</span>{" "}
+              medical centers found
               {(country || city || centerName) && (
                 <span className="ml-2">
                   (filtered from {medicalCenters.length} total)
@@ -418,8 +412,8 @@ const MedicalCenter = () => {
             <thead className="bg-gray-50">
               <tr>
                 {TABLE_HEADERS.map((header) => (
-                  <th 
-                    key={header} 
+                  <th
+                    key={header}
                     className="px-4 py-3 font-semibold text-gray-700 border-b"
                   >
                     {header}
@@ -435,15 +429,31 @@ const MedicalCenter = () => {
                     <div className="flex justify-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                     </div>
-                    <p className="mt-2 text-gray-500">Loading medical centers...</p>
+                    <p className="mt-2 text-gray-500">
+                      Loading medical centers...
+                    </p>
                   </td>
                 </tr>
               ) : filteredCenters.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                  <td
+                    colSpan="6"
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
                     <div className="text-gray-400 mb-2">
-                      <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      <svg
+                        className="w-12 h-12 mx-auto"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
                       </svg>
                     </div>
                     No medical centers found
@@ -454,15 +464,17 @@ const MedicalCenter = () => {
                 </tr>
               ) : (
                 filteredCenters.map((center, index) => (
-                  <tr 
-                    key={center._id} 
+                  <tr
+                    key={center._id}
                     className="hover:bg-gray-50 transition duration-150"
                   >
                     <td className="px-4 py-3 text-gray-600">{index + 1}</td>
                     <td className="px-4 py-3 font-medium text-gray-900">
                       {center.name}
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{center.country}</td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {center.country}
+                    </td>
                     <td className="px-4 py-3 text-gray-700">{center.city}</td>
                     <td className="px-4 py-3">
                       <span className="font-medium text-green-600">
