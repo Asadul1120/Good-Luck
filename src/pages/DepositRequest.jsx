@@ -191,7 +191,7 @@ const DepositRequest = () => {
                     Payment System:
                   </div>
                   <div className="bg-gray-50 p-3 font-semibold text-gray-700 text-sm">
-                    Reference No:
+                    Transaction ID:
                   </div>
                 </div>
 
@@ -254,7 +254,7 @@ const DepositRequest = () => {
                           ? "border-red-500"
                           : "border-gray-300"
                       }`}
-                      placeholder="Enter reference number"
+                      placeholder="Enter Transaction ID"
                     />
                     {errors.referenceNo && (
                       <p className="mt-1 text-xs text-red-600">

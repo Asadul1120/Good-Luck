@@ -546,9 +546,8 @@ const AdminMedicalCenters = () => {
                       <td className="p-4">
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1">
-                            <DollarSign size={14} className="text-green-600" />
                             <span className="font-medium">
-                              ${center.price.toLocaleString()}
+                              {center.price.toLocaleString()}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
@@ -598,7 +597,7 @@ const AdminMedicalCenters = () => {
                 <div className="flex items-center gap-1">
                   <DollarSign size={14} className="text-green-600" />
                   <span>
-                    Average Price: $
+                    Average Price:
                     {Math.round(
                       filteredAndSortedCenters.reduce(
                         (sum, c) => sum + c.price,

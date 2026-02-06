@@ -298,7 +298,7 @@ const AdminDeposits = () => {
                   </th>
                   <th className="p-3 border min-w-[100px]">Amount</th>
                   <th className="p-3 border min-w-[100px]">Method</th>
-                  <th className="p-3 border min-w-[120px]">Reference</th>
+                  <th className="p-3 border min-w-[120px]">Transaction</th>
                   <th className="p-3 border min-w-[120px] hidden sm:table-cell">
                     Date
                   </th>

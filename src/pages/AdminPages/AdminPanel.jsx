@@ -364,7 +364,7 @@ const AdminPanel = () => {
                           </span>
                         </div>
                         <p className="text-lg font-bold text-gray-900">
-                          ${u.balance || 0}
+                          {u.balance || 0} TK
                         </p>
                       </div>
                       <div className="bg-gray-50 p-3 rounded-lg">
@@ -375,7 +375,7 @@ const AdminPanel = () => {
                           </span>
                         </div>
                         <p className="text-lg font-bold text-gray-900">
-                          ${u.WorkSubmittedAmount || 0}
+                          {u.WorkSubmittedAmount || 0} TK
                         </p>
                       </div>
                     </div>
