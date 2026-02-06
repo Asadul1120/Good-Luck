@@ -8,14 +8,16 @@ const getStatusColor = (status) => {
   switch (status) {
     case "complete":
       return "bg-green-600";
-    case "processing":
-      return "bg-cyan-600";
-    case "no-balance":
-      return "bg-orange-600";
     case "cancelled":
       return "bg-red-600";
-    case "no-queue":
+    case "no-balance":
+      return "bg-orange-600";
+    case "processing":
+      return "bg-cyan-600";
+    case "processing-link":
       return "bg-blue-600";
+    case "no-queue":
+      return "bg-purple-600";
     default:
       return "bg-yellow-500";
   }
@@ -242,33 +244,68 @@ function UserSlipPayments() {
                     <div className="flex flex-col items-center gap-1">
                       <button
                         type="button"
-                        onClick={() => {
-                          if (row.status !== "complete" || !row.paymentLink)
+                        onClick={async () => {
+                          // ✅ COMPLETE → open payment link + click count
+                          if (row.status === "complete") {
+                            setClickCounts((prev) => ({
+                              ...prev,
+                              [row._id]: (prev[row._id] || 0) + 1,
+                            }));
+
+                            if (row.paymentLink) {
+                              window.open(
+                                row.paymentLink,
+                                "_blank",
+                                "noopener,noreferrer",
+                              );
+                            }
                             return;
+                          }
 
-                          setClickCounts((prev) => ({
-                            ...prev,
-                            [row._id]: (prev[row._id] || 0) + 1,
-                          }));
+                          // ⛔ locked statuses
+                          if (
+                            row.status === "processing" ||
+                            row.status === "cancelled" ||
+                            row.status === "other"
+                          ) {
+                            return;
+                          }
 
-                          window.open(
-                            row.paymentLink,
-                            "_blank",
-                            "noopener,noreferrer",
-                          );
+                          // 🔄 no-balance → update status
+                          try {
+                            const res = await axios.patch(
+                              `/slipPayment/${row._id}/user-update-status`,
+                            );
+
+                            const newStatus = res.data.data.newStatus;
+
+                            setData((prev) =>
+                              prev.map((item) =>
+                                item._id === row._id
+                                  ? { ...item, status: newStatus }
+                                  : item,
+                              ),
+                            );
+                          } catch (err) {
+                            alert(
+                              err.response?.data?.message ||
+                                "Status update failed",
+                            );
+                          }
                         }}
                         className={`px-2 py-1 text-xs sm:text-sm rounded text-white font-semibold
-                          ${
-                            row.status === "complete"
-                              ? "cursor-pointer hover:opacity-90"
-                              : "cursor-not-allowed opacity-80"
-                          }
-                          ${getStatusColor(row.status)}
-                        `}
+        ${
+          row.status === "complete"
+            ? "cursor-pointer hover:opacity-90"
+            : "cursor-not-allowed opacity-80"
+        }
+        ${getStatusColor(row.status)}
+      `}
                       >
                         {getStatusText(row.status)}
                       </button>
 
+                      {/* Comment Tooltip */}
                       {row.comment && (
                         <span className="relative group text-[11px] text-gray-600">
                           {row.comment.length > 10
@@ -277,14 +314,15 @@ function UserSlipPayments() {
 
                           <span
                             className="absolute z-50 hidden group-hover:block bg-gray-200 text-red-600
-                            top-full left-1/2 -translate-x-1/2 mt-1 px-2 py-1 rounded text-xs
-                            max-w-[260px] whitespace-normal shadow-lg"
+          top-full left-1/2 -translate-x-1/2 mt-1 px-2 py-1 rounded text-xs
+          max-w-[260px] whitespace-normal shadow-lg"
                           >
                             {row.comment}
                           </span>
                         </span>
                       )}
 
+                      {/* Click Count */}
                       {clickCounts[row._id] > 0 && (
                         <span className="text-[11px] text-gray-500">
                           Clicked: {clickCounts[row._id]}
