@@ -1,30 +1,41 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../src/api/axios";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const getStatusClass = (status) => {
   switch (status) {
     case "no-balance":
-      return "bg-purple-100 text-purple-700";
+      return "bg-purple-100 text-purple-700 border-purple-300";
     case "no-queue":
-      return "bg-blue-100 text-blue-700";
+      return "bg-blue-100 text-blue-700 border-blue-300";
     case "processing":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    case "processing-link":
+      return "bg-indigo-100 text-indigo-700 border-indigo-300";
     case "complete":
-      return "bg-green-100 text-green-700";
+      return "bg-green-100 text-green-700 border-green-300";
     case "cancelled":
-      return "bg-red-100 text-red-700";
+      return "bg-red-100 text-red-700 border-red-300";
     case "other":
-      return "bg-gray-200 text-gray-700";
+      return "bg-gray-200 text-gray-700 border-gray-400";
     default:
-      return "bg-gray-100 text-gray-600";
+      return "bg-gray-100 text-gray-600 border-gray-300";
   }
+};
+
+const isValidDate = (date) => {
+  return date instanceof Date && !isNaN(date);
 };
 
 const AdminSlipPayments = () => {
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
 
   const [amounts, setAmounts] = useState({});
   const [paymentLinks, setPaymentLinks] = useState({});
@@ -35,6 +46,10 @@ const AdminSlipPayments = () => {
     fetchSlipPayments();
   }, []);
 
+  useEffect(() => {
+    applyFilters();
+  }, [data, statusFilter, search, startDate, endDate]);
+
   const fetchSlipPayments = async () => {
     try {
       const res = await axios.get("/slipPayment");
@@ -42,6 +57,37 @@ const AdminSlipPayments = () => {
     } catch (err) {
       toast.error("Failed to load slip payments");
     }
+  };
+
+  const applyFilters = () => {
+    const filtered = data.filter((item) => {
+      // Status filter
+      const matchesStatus =
+        statusFilter === "all" || item.status === statusFilter;
+
+      // Search filter
+      const q = search.toLowerCase();
+      const matchesSearch =
+        item.username?.toLowerCase().includes(q) ||
+        item.email?.toLowerCase().includes(q) ||
+        item.phone?.toLowerCase().includes(q) ||
+        item.playLink?.toLowerCase().includes(q);
+
+      // Date filter
+      const itemDate = item.createdAt ? new Date(item.createdAt) : null;
+
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      const matchesDate = !itemDate || (itemDate >= start && itemDate <= end);
+
+      return matchesStatus && matchesSearch && matchesDate;
+    });
+
+    setFilteredData(filtered);
   };
 
   const handleStatusChange = async (id, status) => {
@@ -56,20 +102,6 @@ const AdminSlipPayments = () => {
     }
   };
 
-  const filteredData = data.filter((item) => {
-    const matchesStatus =
-      statusFilter === "all" || item.status === statusFilter;
-
-    const q = search.toLowerCase();
-    const matchesSearch =
-      item.username?.toLowerCase().includes(q) ||
-      item.email?.toLowerCase().includes(q) ||
-      item.phone?.toLowerCase().includes(q) ||
-      item.playLink?.toLowerCase().includes(q);
-
-    return matchesStatus && matchesSearch;
-  });
-
   return (
     <div className="p-4 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4 text-center">
@@ -77,32 +109,117 @@ const AdminSlipPayments = () => {
       </h1>
 
       {/* FILTER BAR */}
-      <div className="mb-4 bg-white p-4 rounded shadow flex flex-col sm:flex-row gap-3">
-        <input
-          type="text"
-          placeholder="Search name / email / phone / link"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-3 py-2 border rounded text-sm"
-        />
+      <div className="mb-5 bg-white p-4 rounded-xl shadow">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+          {/* SEARCH */}
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Search
+            </label>
+            <input
+              type="text"
+              placeholder="Name / Email / Phone / Link"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg text-sm
+        focus:ring-2 focus:ring-indigo-400 outline-none"
+            />
+          </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 border rounded text-sm font-semibold"
-        >
-          <option value="all">ALL STATUS</option>
-          <option value="no-balance">NO-BALANCE</option>
-          <option value="no-queue">NO-QUEUE</option>
-          <option value="processing">PROCESSING</option>
-          <option value="cancelled">CANCELLED</option>
-          <option value="other">OTHER</option>
-        </select>
+          {/* STATUS */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={`w-full px-4 py-2 rounded-lg border text-sm font-semibold
+        outline-none focus:ring-2 focus:ring-indigo-400
+        ${getStatusClass(statusFilter)}`}
+            >
+              <option value="all">All</option>
+              <option value="no-balance">NO-BALANCE</option>
+              <option value="no-queue">NO-QUEUE</option>
+              <option value="processing">PROCESSING</option>
+              <option value="processing-link">PROCESSING-LINK</option>
+              <option value="complete">COMPLETE</option>
+              <option value="cancelled">CANCELLED</option>
+              <option value="other">OTHER</option>
+            </select>
+          </div>
+
+          {/* START DATE */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              Start Date
+            </label>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              maxDate={endDate || new Date()}
+              dateFormat="dd/MM/yyyy"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm
+    focus:outline-none focus:ring-2 focus:ring-blue-500"
+              wrapperClassName="w-full"
+              showYearDropdown
+              yearDropdownItemNumber={20}
+              scrollableYearDropdown
+              isClearable
+            />
+          </div>
+
+          {/* END DATE */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              End Date
+            </label>
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate || null}
+              dateFormat="dd/MM/yyyy"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm
+    focus:outline-none focus:ring-2 focus:ring-blue-500"
+              wrapperClassName="w-full"
+              showYearDropdown
+              yearDropdownItemNumber={20}
+              scrollableYearDropdown
+              isClearable
+            />
+          </div>
+        </div>
+
+        {/* FILTER SUMMARY */}
+        <div className="flex items-center justify-between mt-3 text-xs text-gray-600">
+          <div>
+            Showing <span className="font-bold">{filteredData.length}</span> of{" "}
+            <span className="font-bold">{data.length}</span> records
+          </div>
+          <div className="flex gap-2">
+            {startDate && (
+              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                From: {startDate.toLocaleDateString("en-GB")}
+              </span>
+            )}
+            {endDate && (
+              <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                To: {endDate.toLocaleDateString("en-GB")}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* TABLE */}
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full text-sm text-center border-collapse">
+      <div className="overflow-x-auto bg-white shadow rounded-lg">
+        <table className="min-w-max w-full border-collapse text-sm text-center">
           <thead className="bg-gray-200">
             <tr>
               {[
@@ -131,10 +248,9 @@ const AdminSlipPayments = () => {
               >
                 <td className="border px-2 py-1">{index + 1}</td>
 
-                {/* COMBINED USER COLUMN WITH IMAGE AND USERNAME */}
+                {/* USER COLUMN WITH IMAGE */}
                 <td className="border px-2 py-1">
                   <div className="flex items-center justify-start gap-2">
-                    {/* USER IMAGE OR FALLBACK AVATAR */}
                     <div className="flex-shrink-0">
                       {item.image ? (
                         <img
@@ -148,8 +264,6 @@ const AdminSlipPayments = () => {
                         </div>
                       )}
                     </div>
-
-                    {/* USERNAME */}
                     <div className="font-semibold text-left">
                       {item.username}
                     </div>
@@ -176,8 +290,7 @@ const AdminSlipPayments = () => {
                       onChange={(e) =>
                         handleStatusChange(item._id, e.target.value)
                       }
-                      className={`w-full px-2 py-1.5 text-xs rounded-md font-semibold border 
-        focus:outline-none transition
+                      className={`w-full px-2 py-1.5 text-xs rounded-md font-semibold border focus:outline-none
         ${getStatusClass(item.status)}
         ${
           item.status === "complete"
@@ -189,6 +302,10 @@ const AdminSlipPayments = () => {
                         { value: "no-balance", label: "NO-BALANCE" },
                         { value: "no-queue", label: "NO-QUEUE" },
                         { value: "processing", label: "[PROCESSING]" },
+                        {
+                          value: "processing-link",
+                          label: "[PROCESSING-LINK]",
+                        },
 
                         ...(item.paymentLink
                           ? [{ value: "complete", label: "COMPLETE" }]
@@ -262,9 +379,9 @@ const AdminSlipPayments = () => {
                   </div>
                 </td>
 
-                {/* PAYMENT */}
+                {/* PAYMENT SECTION */}
                 <td className="border px-2 py-1">
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex gap-2 items-center">
                     <input
                       type="number"
                       placeholder="Amount"
@@ -344,7 +461,17 @@ const AdminSlipPayments = () => {
                 </td>
 
                 <td className="border px-2 py-1">
-                  {new Date(item.createdAt).toLocaleString()}
+                  {item.createdAt
+                    ? isValidDate(new Date(item.createdAt))
+                      ? new Date(item.createdAt).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : item.createdAt
+                    : "-"}
                 </td>
               </tr>
             ))}
@@ -352,7 +479,7 @@ const AdminSlipPayments = () => {
             {filteredData.length === 0 && (
               <tr>
                 <td colSpan="9" className="py-6 text-gray-500">
-                  No Slip Payments found
+                  No Slip Payments found for selected filters
                 </td>
               </tr>
             )}
