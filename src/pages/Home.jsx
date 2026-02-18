@@ -2,16 +2,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Home = () => {
-  const { user, loading } = useAuth();
-
-  // ⏳ auth check চলাকালীন
-  if (loading) {
-    return (
-      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
-  }
+  const { user } = useAuth();
 
   // ✅ user থাকলে dashboard এ redirect
   if (user?.role === "user") {
